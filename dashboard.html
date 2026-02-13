@@ -109,81 +109,6 @@
     .live-btn{background:#FFD700;color:black;}
     .record-btn{background:#1f2937;color:white;border:1px solid #FFD700;}
     .call-btn{background:#25D366;color:white;}
-.slider-container{
-  display:flex;
-  overflow-x:auto;
-  gap:15px;
-  scroll-snap-type:x mandatory;
-}
-
-.slide{
-  min-width:250px;
-  background:#1f2937;
-  padding:15px;
-  border-radius:15px;
-  text-align:center;
-  scroll-snap-align:start;
-  box-shadow:0 0 20px rgba(255,215,0,0.1);
-}
-
-.slide img{
-  width:100%;
-  border-radius:10px;
-  margin-bottom:10px;
-}
-
-.slide p{
-  font-style:italic;
-  font-size:14px;
-}
-...carousel {
-  overflow: hidden;
-  width: 100%;
-  position: relative;
-  margin-top: 15px;
-}
-
-.carousel {
-  width: 100%;
-  overflow: hidden;
-  margin-top: 15px;
-}
-
-.carousel-track {
-  display: flex;
-  width: 500%; /* 5 slides */
-  transition: transform 0.6s ease-in-out;
-}
-
-.carousel-item {
-  width: 100%;
-  flex: 1 0 100%;
-  padding: 10px;
-  box-sizing: border-box;
-}
-
-.carousel-card {
-  background: #1f2937;
-  border-radius: 15px;
-  padding: 15px;
-  text-align: center;
-  box-shadow: 0 0 20px rgba(255,215,0,0.15);
-}
-
-.carousel-card img {
-  width: 100%;
-  height: 160px;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-.carousel-card p {
-  margin-top: 10px;
-  font-style: italic;
-  font-size: 14px;
-}
-
-
 
   </style>
 </head>
@@ -201,52 +126,6 @@
     <p>Total Hours Finished: <span class="highlight" id="totalHours">0</span> Hours</p>
     <div class="countdown" id="countdown"></div>
   </div>
-  
-
-    <!-- Motivation Carousel -->
-<div class="card">
-  <h3 class="highlight">🔥 Stay Focused. Stay Hungry.</h3>
-
-<div class="carousel">
-  <div class="carousel-track">
-
-    <div class="carousel-item">
-      <div class="carousel-card">
-        <img src="manjunath.JPG">
-        <p>"The harder you work for something, the greater you'll feel when you achieve it."</p>
-      </div>
-    </div>
-
-    <div class="carousel-item">
-      <div class="carousel-card">
-        <img src="mot1.jpg">
-        <p>"Success doesn’t come from comfort zones."</p>
-      </div>
-    </div>
-
-    <div class="carousel-item">
-      <div class="carousel-card">
-        <img src="mot2.jpg">
-        <p>"Discipline today. Result tomorrow."</p>
-      </div>
-    </div>
-
-    <div class="carousel-item">
-      <div class="carousel-card">
-        <img src="mot3.jpg">
-        <p>"Fear of exam? Good. Use it."</p>
-      </div>
-    </div>
-
-    <div class="carousel-item">
-      <div class="carousel-card">
-        <img src="mot4.jpg">
-        <p>"90+ is preparation, not luck."</p>
-      </div>
-    </div>
-
-  </div>
-</div>
 
   <!-- Batches -->
   <div class="card">
@@ -316,7 +195,6 @@
 
   // 🔥 Protect Dashboard
   auth.onAuthStateChanged((user) => {
-console.log("Auth user:", user);
 
     if (user) {
 
@@ -328,9 +206,6 @@ console.log("Auth user:", user);
         }
 
         const data = doc.data();
-console.log("Logged in UID:", user.uid);
-console.log("Firestore Data:", data);
-console.log("Payment Status:", data.paymentStatus);
 
         if (data.paymentStatus !== "paid") {
           alert("Please complete enrollment first.");
@@ -384,31 +259,9 @@ console.log("Payment Status:", data.paymentStatus);
   function callNow(){
     window.location.href="tel:02269719375";
   }
-// Auto horizontal scroll
-
-// Netflix Style Infinite Carousel
-{const track = document.querySelector(".carousel-track");
-const slides = document.querySelectorAll(".carousel-item");
-
-let index = 0;
-
-function autoSlide() {
-  index++;
-  if (index >= slides.length) {
-    index = 0;
-  }
-  track.style.transform = `translateX(-${index * 100}%)`;
-}
-
-setInterval(autoSlide, 3000);
-
-    track.style.transform = `translateX(-${currentIndex * 100}%)`;
-    slides.forEach(slide => slide.classList.remove("active"));
-    slides[currentIndex].classList.add("active");
-
-}
 
 </script>
 
 </body>
 </html>
+
