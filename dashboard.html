@@ -195,6 +195,7 @@
 
   // 🔥 Protect Dashboard
   auth.onAuthStateChanged((user) => {
+console.log("Auth user:", user);
 
     if (user) {
 
