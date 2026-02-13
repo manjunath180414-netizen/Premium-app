@@ -123,32 +123,38 @@
   // Google Login
   googleBtn.addEventListener("click", () => {
 
-    auth.signInWithPopup(provider)
-    .then((result) => {
+  auth.signInWithPopup(provider)
+  .then((result) => {
 
-      const user = result.user;
+    const user = result.user;
+    console.log("Google login success");
 
-      // Save student to Firestore
-      db.collection("students").doc(user.uid).set({
-        name: nameInput.value,
-        phone: phoneInput.value,
-        email: user.email,
-        medium: mediumSelect.value,
-        enrolledCourse: "",
-        paymentStatus: "pending",
-        totalStudyHours: 0,
-        joinedOn: firebase.firestore.FieldValue.serverTimestamp()
-      })
-      .then(() => {
-        window.location.href = "courses.html";
-      });
-
+    db.collection("students").doc(user.uid).set({
+      name: nameInput.value,
+      phone: phoneInput.value,
+      email: user.email,
+      medium: mediumSelect.value,
+      enrolledCourse: "",
+      paymentStatus: "pending",
+      totalStudyHours: 0,
+      joinedOn: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+      console.log("Firestore saved successfully");
+      window.location.href = "courses.html";
     })
     .catch((error) => {
-      alert("Login Failed: " + error.message);
+      console.error("Firestore Error:", error);
+      alert(error.message);
     });
 
+  })
+  .catch((error) => {
+    console.error("Login Error:", error);
+    alert(error.message);
   });
+
+});
 
 </script>
 
