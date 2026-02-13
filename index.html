@@ -129,8 +129,12 @@
 
   googleBtn.addEventListener("click", () => {
     auth.signInWithRedictor(provider)
-      .then((result) => {
-        const user = result.user;
+      auth.getRedirectResult().then((result) => {
+  if (result.user) {
+    window.location.href = "courses.html";
+  }
+});
+
 
         // Save user details in localStorage
         localStorage.setItem("studentName", nameInput.value);
