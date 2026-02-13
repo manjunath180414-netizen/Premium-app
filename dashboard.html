@@ -206,6 +206,9 @@
         }
 
         const data = doc.data();
+console.log("Logged in UID:", user.uid);
+console.log("Firestore Data:", data);
+console.log("Payment Status:", data.paymentStatus);
 
         if (data.paymentStatus !== "paid") {
           alert("Please complete enrollment first.");
