@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HiS Academy Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body{
+      margin:0;
+      font-family:Poppins, sans-serif;
+      background:linear-gradient(135deg,#0f0f1a,#1a1a2e);
+      color:white;
+    }
+
+    .container{
+      padding:20px;
+      max-width:1000px;
+      margin:auto;
+    }
+
+    .banner{
+      background:linear-gradient(90deg,#FFD700,#ffcc00);
+      color:black;
+      padding:15px;
+      border-radius:15px;
+      font-weight:bold;
+      text-align:center;
+      margin-bottom:20px;
+    }
+
+    .card{
+      background:#111827;
+      padding:20px;
+      border-radius:18px;
+      margin-bottom:20px;
+      box-shadow:0 0 25px rgba(255,215,0,0.15);
+    }
+
+    .highlight{ color:#FFD700; }
+
+    .countdown{
+      margin-top:10px;
+      color:#ffcc00;
+      font-weight:bold;
+    }
+
+    /* Horizontal Batches */
+    .batch-container{
+      display:flex;
+      overflow-x:auto;
+      gap:15px;
+      padding-bottom:10px;
+    }
+
+    .batch-card{
+      min-width:220px;
+      background:#1f2937;
+      border-radius:15px;
+      padding:15px;
+      cursor:pointer;
+      position:relative;
+      text-align:center;
+      transition:0.3s;
+    }
+
+    .batch-card img{
+      width:100%;
+      border-radius:10px;
+      margin-bottom:10px;
+    }
+
+    .locked::after{
+      content:"🔒 Locked";
+      position:absolute;
+      top:10px;
+      right:10px;
+      background:#000000aa;
+      padding:5px 8px;
+      border-radius:10px;
+      font-size:12px;
+    }
+
+    /* Shake animation */
+    @keyframes shake{
+      0%{transform:translateX(0);}
+      25%{transform:translateX(-5px);}
+      50%{transform:translateX(5px);}
+      75%{transform:translateX(-5px);}
+      100%{transform:translateX(0);}
+    }
+
+    .shake{
+      animation:shake 0.3s;
+    }
+
+    .button{
+      width:100%;
+      padding:14px;
+      border-radius:12px;
+      border:none;
+      font-weight:bold;
+      cursor:pointer;
+      margin-top:10px;
+    }
+
+    .live-btn{background:#FFD700;color:black;}
+    .record-btn{background:#1f2937;color:white;border:1px solid #FFD700;}
+    .call-btn{background:#25D366;color:white;}
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <h2>Hi, <span id="studentName"></span> 👋</h2>
+
+  <div class="banner">
+    🚀 Mega Scholarship Test Coming Soon | Stay Prepared!
+  </div>
+
+  <div class="card">
+    <p>Total Hours Finished: <span class="highlight">120 Hours</span></p>
+    <div class="countdown" id="countdown"></div>
+  </div>
+
+  <!-- Batches Section -->
+  <div class="card">
+    <h3>Batches</h3>
+
+    <div class="batch-container">
+
+      <!-- Unlocked -->
+      <div class="batch-card" onclick="openCourse()">
+        <img src="sslc.jpg">
+        <b class="highlight">SSLC 2026 Crash Course</b>
+        <p>Study Now</p>
+      </div>
+
+      <!-- Locked -->
+      <div class="batch-card locked" onclick="locked(this)">
+        <img src="batch2.jpg">
+        NEET 2026
+      </div>
+
+      <div class="batch-card locked" onclick="locked(this)">
+        <img src="batch3.jpg">
+        KCET Mastery
+      </div>
+
+      <div class="batch-card locked" onclick="locked(this)">
+        <img src="batch4.jpg">
+        Exam Booster
+      </div>
+
+    </div>
+  </div>
+
+  <button class="button live-btn" onclick="playLive()">
+    ▶ Watch Live Classes
+  </button>
+
+  <div id="liveVideo"></div>
+
+  <button class="button record-btn" onclick="openRecorded()">
+    🎥 Watch Recorded Classes
+  </button>
+
+  <button class="button call-btn" onclick="callNow()">
+    📞 Speak with Manjunath Sir
+  </button>
+
+</div>
+
+<script>
+
+  const name = localStorage.getItem("studentName");
+  document.getElementById("studentName").innerText = name ? name : "Student";
+
+  // Countdown
+  const examDate = new Date("March 18, 2026 10:00:00").getTime();
+  setInterval(function(){
+    const now = new Date().getTime();
+    const distance = examDate - now;
+
+    const days = Math.floor(distance / (1000*60*60*24));
+    const hours = Math.floor((distance%(1000*60*60*24))/(1000*60*60));
+    const minutes = Math.floor((distance%(1000*60*60))/(1000*60));
+    const seconds = Math.floor((distance%(1000*60))/1000);
+
+    document.getElementById("countdown").innerHTML =
+      "⏳ "+days+"d "+hours+"h "+minutes+"m "+seconds+"s left for SSLC Exam!";
+  },1000);
+
+  function locked(el){
+    el.classList.add("shake");
+    setTimeout(()=>el.classList.remove("shake"),300);
+  }
+
+  function openCourse(){
+    window.location.href="recorded.html";
+  }
+
+  function openRecorded(){
+    window.location.href="recorded.html";
+  }
+
+  function playLive(){
+    document.getElementById("liveVideo").innerHTML =
+      '<video controls width="100%"><source src="live.mp4" type="video/mp4"></video><p>Live: Maths Strategy Session</p>';
+  }
+
+  function callNow(){
+    window.location.href="tel:02269719375";
+  }
+
+</script>
+
+</body>
+</html>
