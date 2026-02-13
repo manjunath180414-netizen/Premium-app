@@ -4,6 +4,11 @@
   <title>HiS Academy Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
   <style>
     body{
       margin:0;
@@ -44,7 +49,6 @@
       font-weight:bold;
     }
 
-    /* Horizontal Batches */
     .batch-container{
       display:flex;
       overflow-x:auto;
@@ -80,7 +84,6 @@
       font-size:12px;
     }
 
-    /* Shake animation */
     @keyframes shake{
       0%{transform:translateX(0);}
       25%{transform:translateX(-5px);}
@@ -113,18 +116,18 @@
 
 <div class="container">
 
-  <h2>Hi, <span id="studentName"></span> 👋</h2>
+  <h2>Hi, <span id="studentName">Student</span> 👋</h2>
 
   <div class="banner">
     🚀 Mega Scholarship Test Coming Soon | Stay Prepared!
   </div>
 
   <div class="card">
-    <p>Total Hours Finished: <span class="highlight">120 Hours</span></p>
+    <p>Total Hours Finished: <span class="highlight" id="totalHours">0</span> Hours</p>
     <div class="countdown" id="countdown"></div>
   </div>
 
-  <!-- Batches Section -->
+  <!-- Batches -->
   <div class="card">
     <h3>Batches</h3>
 
@@ -174,8 +177,51 @@
 
 <script>
 
-  const name = localStorage.getItem("studentName");
-  document.getElementById("studentName").innerText = name ? name : "Student";
+  // 🔥 Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCehyZQukDfslKTY_u9yXcUrzGtMNHvuPA",
+    authDomain: "his-academy.firebaseapp.com",
+    projectId: "his-academy",
+    storageBucket: "his-academy.firebasestorage.app",
+    messagingSenderId: "573278549264",
+    appId: "1:573278549264:web:ca2ff160b5a100cc7d2195",
+    measurementId: "G-8WPMS7H33F"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // 🔥 Protect Dashboard
+  auth.onAuthStateChanged((user) => {
+
+    if (user) {
+
+      db.collection("students").doc(user.uid).get()
+      .then((doc) => {
+
+        if (!doc.exists) {
+          window.location.href = "login.html";
+        }
+
+        const data = doc.data();
+
+        if (data.paymentStatus !== "paid") {
+          alert("Please complete enrollment first.");
+          window.location.href = "courses.html";
+        }
+
+        document.getElementById("studentName").innerText = data.name;
+        document.getElementById("totalHours").innerText = data.totalStudyHours;
+
+      });
+
+    } else {
+      window.location.href = "login.html";
+    }
+
+  });
 
   // Countdown
   const examDate = new Date("March 18, 2026 10:00:00").getTime();
