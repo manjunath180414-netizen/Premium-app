@@ -74,56 +74,77 @@
     }
 
     /* Batches */
-    .batch{
-  min-width:220px;
+    .batch-wrapper{
+  display:flex;
+  gap:18px;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  padding-bottom:10px;
+}
+
+.batch-wrapper::-webkit-scrollbar{
+  display:none;
+}
+
+.batch-card{
+  min-width:280px;
   background:#1f2937;
-  padding:15px;
-  border-radius:15px;
+  border-radius:20px;
   position:relative;
+  overflow:hidden;
+  scroll-snap-align:start;
+  box-shadow:0 0 25px rgba(255,215,0,0.1);
+  transition:0.3s;
 }
 
-.batch img{
+.batch-card img{
   width:100%;
-  height:180px;
-  object-fit:cover;
-  border-radius:12px;
-
-
+  height:200px;           /* SAME SIZE */
+  object-fit:cover;       /* crop evenly */
+  display:block;
 }
 
+.batch-title{
+  padding:15px;
+  text-align:center;
+}
 
-    .locked::after{
-      content:"🔒 Locked";
-      position:absolute;
-      top:10px;
-      right:10px;
-      background:#000000aa;
-      padding:5px 8px;
-      border-radius:10px;
-      font-size:12px;
-    }
+.batch-title h4{
+  margin:0;
+  color:white;
+}
 
-    @keyframes shake{
-      0%{transform:translateX(0);}
-      25%{transform:translateX(-5px);}
-      50%{transform:translateX(5px);}
-      75%{transform:translateX(-5px);}
-      100%{transform:translateX(0);}
-    }
+.batch-title p{
+  margin:5px 0 0 0;
+  color:#FFD700;
+}
 
-    .shake{
-      animation:shake 0.3s;
-    }
+.lock-overlay{
+  position:absolute;
+  top:12px;
+  right:12px;
+  background:rgba(0,0,0,0.7);
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:13px;
+}
 
-    .btn{
-      width:100%;
-      padding:14px;
-      border-radius:12px;
-      border:none;
-      font-weight:bold;
-      cursor:pointer;
-      margin-top:10px;
-    }
+.batch-card.locked img{
+  filter:brightness(50%);
+}
+
+@keyframes shake{
+  0%{transform:translateX(0);}
+  25%{transform:translateX(-5px);}
+  50%{transform:translateX(5px);}
+  75%{transform:translateX(-5px);}
+  100%{transform:translateX(0);}
+}
+
+.shake{
+  animation:shake 0.3s;
+}
+
 
     .live-btn{background:#FFD700;color:black;}
     .record-btn{background:#1f2937;color:white;border:1px solid #FFD700;}
@@ -179,37 +200,49 @@
 
     </div>
   </div>
-
 <!-- Batches -->
 <div class="card">
   <h3>Batches</h3>
-  <div class="batch-container">
+
+  <div class="batch-wrapper">
 
     <!-- Unlocked -->
-    <div class="batch" onclick="openRecorded()">
+    <div class="batch-card" onclick="openRecorded()">
       <img src="sslc.jpg">
-      <b>SSLC 2026 Crash Course</b>
-      <p>Study Now</p>
+      <div class="batch-title">
+        <h4>SSLC 2026 Crash Course</h4>
+        <p>Study Now</p>
+      </div>
     </div>
 
     <!-- Locked -->
-    <div class="batch locked" onclick="locked(this)">
+    <div class="batch-card locked" onclick="locked(this)">
       <img src="neet.jpg">
-      NEET 2026
+      <div class="batch-title">
+        <h4>NEET 2026</h4>
+      </div>
+      <div class="lock-overlay">🔒 Locked</div>
     </div>
 
-    <div class="batch locked" onclick="locked(this)">
+    <div class="batch-card locked" onclick="locked(this)">
       <img src="kcet.jpg">
-      KCET Mastery
+      <div class="batch-title">
+        <h4>KCET Mastery</h4>
+      </div>
+      <div class="lock-overlay">🔒 Locked</div>
     </div>
 
-    <div class="batch locked" onclick="locked(this)">
+    <div class="batch-card locked" onclick="locked(this)">
       <img src="booster.jpg">
-      Exam Booster
+      <div class="batch-title">
+        <h4>Exam Booster</h4>
+      </div>
+      <div class="lock-overlay">🔒 Locked</div>
     </div>
 
   </div>
 </div>
+
 
   <button class="btn live-btn" onclick="openLive()">
     ▶ Watch Live Classes
