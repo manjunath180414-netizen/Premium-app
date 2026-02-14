@@ -119,6 +119,17 @@
     appId: "1:573278549264:web:ca2ff160b5a100cc7d2195",
     measurementId: "G-8WPMS7H33F"
   };
+// Generate or Get Device ID
+function getDeviceId() {
+  let deviceId = localStorage.getItem("deviceId");
+
+  if (!deviceId) {
+    deviceId = "device_" + Math.random().toString(36).substr(2, 16);
+    localStorage.setItem("deviceId", deviceId);
+  }
+
+  return deviceId;
+}
 
   firebase.initializeApp(firebaseConfig);
 
@@ -150,6 +161,41 @@
 
     auth.signInWithPopup(provider)
     .then((result) => {
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+
+    const deviceId = getDeviceId();
+    const userRef = db.collection("students").doc(user.uid);
+    const doc = await userRef.get();
+
+    if (!doc.exists) {
+      alert("Account not found.");
+      firebase.auth().signOut();
+      return;
+    }
+
+    const data = doc.data();
+
+    // First time login → save device
+    if (!data.deviceId) {
+      await userRef.update({
+        deviceId: deviceId
+      });
+
+      window.location.href = "profile.html";
+    }
+    else if (data.deviceId === deviceId) {
+      // Same device → allow
+      window.location.href = "profile.html";
+    }
+    else {
+      // Different device → block
+      alert("This account is already logged in on another device. You cannot login.");
+      firebase.auth().signOut();
+    }
+
+  }
+});
 
       const user = result.user;
 
