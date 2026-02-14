@@ -178,30 +178,36 @@
     </div>
   </div>
 
-  <!-- Batches -->
-  <div class="card">
-    <h3>Batches</h3>
-    <div class="batch-container">
+<!-- Batches -->
+<div class="card">
+  <h3>Batches</h3>
+  <div class="batch-container">
 
-      <div class="batch" onclick="openRecorded()">
-        <b>SSLC 2026 Crash Course</b>
-        <p>Study Now</p>
-      </div>
-
-      <div class="batch locked" onclick="locked(this)">
-        NEET 2026
-      </div>
-
-      <div class="batch locked" onclick="locked(this)">
-        KCET Mastery
-      </div>
-
-      <div class="batch locked" onclick="locked(this)">
-        Exam Booster
-      </div>
-
+    <!-- Unlocked -->
+    <div class="batch" onclick="openRecorded()">
+      <img src="images/sslc.jpg">
+      <b>SSLC 2026 Crash Course</b>
+      <p>Study Now</p>
     </div>
+
+    <!-- Locked -->
+    <div class="batch locked" onclick="locked(this)">
+      <img src="images/neet.jpg">
+      NEET 2026
+    </div>
+
+    <div class="batch locked" onclick="locked(this)">
+      <img src="images/kcet.jpg">
+      KCET Mastery
+    </div>
+
+    <div class="batch locked" onclick="locked(this)">
+      <img src="images/booster.jpg">
+      Exam Booster
+    </div>
+
   </div>
+</div>
 
   <button class="btn live-btn" onclick="openLive()">
     ▶ Watch Live Classes
