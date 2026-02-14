@@ -153,6 +153,19 @@
 <button class="btn secondary-btn" onclick="logoutUser()">
   Logout
 </button>
+    function logoutUser(){
+  firebase.auth().signOut()
+  .then(() => {
+    // Clear device session memory (optional but clean)
+    // localStorage.removeItem("deviceId");  // DO NOT remove if using device lock
+
+    window.location.replace("index.html");
+  })
+  .catch((error) => {
+    alert("Logout failed. Try again.");
+  });
+}
+
 
     <button id="actionBtn" class="btn primary-btn"></button>
   </div>
