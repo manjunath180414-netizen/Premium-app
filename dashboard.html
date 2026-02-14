@@ -45,6 +45,7 @@
       box-shadow:0 0 25px rgba(255,215,0,0.15);
     }
 
+    /* Countdown */
     .countdown{
       color:#FFD700;
       font-weight:bold;
@@ -59,12 +60,11 @@
     }
 
     .slide{
-      min-width:250px;
+      min-width:260px;
       background:#1f2937;
       padding:15px;
       border-radius:15px;
       text-align:center;
-      box-shadow:0 0 20px rgba(255,215,0,0.1);
     }
 
     .slide img{
@@ -74,77 +74,77 @@
     }
 
     /* Batches */
-    .batch-wrapper{
-  display:flex;
-  gap:18px;
-  overflow-x:auto;
-  scroll-snap-type:x mandatory;
-  padding-bottom:10px;
-}
+    .batch-container{
+      display:flex;
+      gap:15px;
+      overflow-x:auto;
+    }
 
-.batch-wrapper::-webkit-scrollbar{
-  display:none;
-}
+    .batch-card{
+      min-width:260px;
+      background:#1f2937;
+      border-radius:15px;
+      overflow:hidden;
+      position:relative;
+      cursor:pointer;
+      flex-shrink:0;
+    }
 
-.batch-card{
-  min-width:280px;
-  background:#1f2937;
-  border-radius:20px;
-  position:relative;
-  overflow:hidden;
-  scroll-snap-align:start;
-  box-shadow:0 0 25px rgba(255,215,0,0.1);
-  transition:0.3s;
-}
+    .batch-card img{
+      width:100%;
+      height:140px;
+      object-fit:cover;
+      display:block;
+    }
 
-.batch-card img{
-  width:100%;
-  height:200px;           /* SAME SIZE */
-  object-fit:cover;       /* crop evenly */
-  display:block;
-}
+    .batch-info{
+      padding:12px;
+      text-align:center;
+    }
 
-.batch-title{
-  padding:15px;
-  text-align:center;
-}
+    .batch-title{
+      font-weight:bold;
+      margin-bottom:5px;
+    }
 
-.batch-title h4{
-  margin:0;
-  color:white;
-}
+    /* Locked Overlay */
+    .locked-overlay{
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:140px;
+      background:rgba(0,0,0,0.6);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:16px;
+      font-weight:bold;
+      color:#FFD700;
+    }
 
-.batch-title p{
-  margin:5px 0 0 0;
-  color:#FFD700;
-}
+    @keyframes shake{
+      0%{transform:translateX(0);}
+      25%{transform:translateX(-5px);}
+      50%{transform:translateX(5px);}
+      75%{transform:translateX(-5px);}
+      100%{transform:translateX(0);}
+    }
 
-.lock-overlay{
-  position:absolute;
-  top:12px;
-  right:12px;
-  background:rgba(0,0,0,0.7);
-  padding:6px 12px;
-  border-radius:20px;
-  font-size:13px;
-}
+    .shake{
+      animation:shake 0.3s;
+    }
 
-.batch-card.locked img{
-  filter:brightness(50%);
-}
-
-@keyframes shake{
-  0%{transform:translateX(0);}
-  25%{transform:translateX(-5px);}
-  50%{transform:translateX(5px);}
-  75%{transform:translateX(-5px);}
-  100%{transform:translateX(0);}
-}
-
-.shake{
-  animation:shake 0.3s;
-}
-
+    /* Buttons */
+    .btn{
+      width:100%;
+      padding:14px;
+      border-radius:12px;
+      border:none;
+      font-weight:bold;
+      cursor:pointer;
+      margin-top:10px;
+    }
 
     .live-btn{background:#FFD700;color:black;}
     .record-btn{background:#1f2937;color:white;border:1px solid #FFD700;}
@@ -168,7 +168,7 @@
     <div class="countdown" id="countdown"></div>
   </div>
 
-  <!-- Motivation Slider -->
+  <!-- Motivation -->
   <div class="card">
     <h3>Motivation</h3>
     <div class="slider">
@@ -200,52 +200,49 @@
 
     </div>
   </div>
-<!-- Batches -->
-<div class="card">
-  <h3>Batches</h3>
 
-  <div class="batch-wrapper">
-   <div class="batch-card">...</div>
-</div>
+  <!-- Batches -->
+  <div class="card">
+    <h3>Batches</h3>
 
+    <div class="batch-container">
 
-    <!-- Unlocked -->
-    <div class="batch-card" onclick="openRecorded()">
-      <img src="sslc.jpg">
-      <div class="batch-title">
-        <h4>SSLC 2026 Crash Course</h4>
-        <p>Study Now</p>
+      <!-- Unlocked -->
+      <div class="batch-card" onclick="openRecorded()">
+        <img src="sslc.jpg">
+        <div class="batch-info">
+          <div class="batch-title">SSLC 2026 Crash Course</div>
+          <div>Study Now</div>
+        </div>
       </div>
-    </div>
 
-    <!-- Locked -->
-    <div class="batch-card locked" onclick="locked(this)">
-      <img src="neet.jpg">
-      <div class="batch-title">
-        <h4>NEET 2026</h4>
+      <!-- Locked -->
+      <div class="batch-card" onclick="locked(this)">
+        <img src="neet.jpg">
+        <div class="locked-overlay">🔒 Locked</div>
+        <div class="batch-info">
+          <div class="batch-title">NEET 2026</div>
+        </div>
       </div>
-      <div class="lock-overlay">🔒 Locked</div>
-    </div>
 
-    <div class="batch-card locked" onclick="locked(this)">
-      <img src="kcet.jpg">
-      <div class="batch-title">
-        <h4>KCET Mastery</h4>
+      <div class="batch-card" onclick="locked(this)">
+        <img src="kcet.jpg">
+        <div class="locked-overlay">🔒 Locked</div>
+        <div class="batch-info">
+          <div class="batch-title">KCET Mastery</div>
+        </div>
       </div>
-      <div class="lock-overlay">🔒 Locked</div>
-    </div>
 
-    <div class="batch-card locked" onclick="locked(this)">
-      <img src="booster.jpg">
-      <div class="batch-title">
-        <h4>Exam Booster</h4>
+      <div class="batch-card" onclick="locked(this)">
+        <img src="booster.jpg">
+        <div class="locked-overlay">🔒 Locked</div>
+        <div class="batch-info">
+          <div class="batch-title">Exam Booster</div>
+        </div>
       </div>
-      <div class="lock-overlay">🔒 Locked</div>
-    </div>
 
+    </div>
   </div>
-</div>
-
 
   <button class="btn live-btn" onclick="openLive()">
     ▶ Watch Live Classes
@@ -263,7 +260,6 @@
 
 <script>
 
-  // Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyCehyZQukDfslKTY_u9yXcUrzGtMNHvuPA",
     authDomain: "his-academy.firebaseapp.com",
@@ -278,31 +274,29 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  // Protect Dashboard
-  auth.onAuthStateChanged((user) => {
+  auth.onAuthStateChanged((user)=>{
     if(user){
       db.collection("students").doc(user.uid).get()
-      .then(doc => {
+      .then(doc=>{
         if(!doc.exists || doc.data().paymentStatus !== "paid"){
-          window.location.href = "courses.html";
+          window.location.href="courses.html";
         }
         document.getElementById("studentName").innerText = doc.data().name;
       });
     } else {
-      window.location.href = "login.html";
+      window.location.href="login.html";
     }
   });
 
-  // Countdown
   const examDate = new Date("March 18, 2026 10:00:00").getTime();
-  setInterval(() => {
+  setInterval(()=>{
     const now = new Date().getTime();
-    const distance = examDate - now;
+    const dist = examDate - now;
 
-    const d = Math.floor(distance/(1000*60*60*24));
-    const h = Math.floor((distance%(1000*60*60*24))/(1000*60*60));
-    const m = Math.floor((distance%(1000*60*60))/(1000*60));
-    const s = Math.floor((distance%(1000*60))/1000);
+    const d = Math.floor(dist/(1000*60*60*24));
+    const h = Math.floor((dist%(1000*60*60*24))/(1000*60*60));
+    const m = Math.floor((dist%(1000*60*60))/(1000*60));
+    const s = Math.floor((dist%(1000*60))/1000);
 
     document.getElementById("countdown").innerHTML =
       d+"d "+h+"h "+m+"m "+s+"s remaining";
@@ -314,15 +308,15 @@
   }
 
   function openRecorded(){
-    window.location.href = "recorded.html";
+    window.location.href="recorded.html";
   }
 
   function openLive(){
-    window.location.href = "live.html";
+    window.location.href="live.html";
   }
 
   function callNow(){
-    window.location.href = "tel:02269719375";
+    window.location.href="tel:02269719375";
   }
 
 </script>
