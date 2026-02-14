@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>SSLC 2026 Recorded Classes</title>
+  <title>Recorded Classes</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Firebase -->
@@ -13,13 +13,12 @@
     body{
       margin:0;
       background:linear-gradient(135deg,#0f0f1a,#1a1a2e);
-      font-family:Poppins, sans-serif;
       color:white;
+      font-family:Poppins, sans-serif;
       padding:20px;
     }
 
     h2{
-      margin-bottom:20px;
       color:#FFD700;
     }
 
@@ -28,37 +27,43 @@
       padding:15px;
       border-radius:15px;
       margin-bottom:20px;
-      box-shadow:0 0 20px rgba(255,215,0,0.1);
+      box-shadow:0 0 25px rgba(255,215,0,0.15);
+    }
+
+    .video-title{
+      font-weight:bold;
+      margin-bottom:10px;
+      color:#FFD700;
     }
 
     video{
       width:100%;
       border-radius:10px;
-      margin-top:10px;
     }
 
     button{
       padding:10px 20px;
+      background:#FFD700;
       border:none;
       border-radius:10px;
-      background:#FFD700;
       font-weight:bold;
-      margin-top:20px;
       cursor:pointer;
     }
+
   </style>
 </head>
 <body>
 
-<h2>🎥 SSLC 2026 Recorded Classes</h2>
+<h2>📚 SSLC 2026 Recorded Classes</h2>
 
 <div id="videoContainer"></div>
 
+<br>
 <button onclick="goBack()">⬅ Back to Dashboard</button>
 
 <script>
 
-  // Firebase Config
+  // 🔥 Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyCehyZQukDfslKTY_u9yXcUrzGtMNHvuPA",
     authDomain: "his-academy.firebaseapp.com",
@@ -70,32 +75,21 @@
   };
 
   firebase.initializeApp(firebaseConfig);
-
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  const container = document.getElementById("videoContainer");
-
+  // 🔒 Protect Page
   auth.onAuthStateChanged((user) => {
 
-    if(user){
+    if (user) {
 
       db.collection("students").doc(user.uid).get()
       .then((doc) => {
 
-        if(!doc.exists){
-          window.location.href = "login.html";
-        }
-
-        const data = doc.data();
-
-        if(data.paymentStatus !== "paid"){
-          alert("Please enroll to access recorded classes.");
+        if (!doc.exists || doc.data().paymentStatus !== "paid") {
+          alert("Access Denied. Please enroll first.");
           window.location.href = "courses.html";
         }
-
-        // ✅ If Paid → Show Videos
-        loadVideos();
 
       });
 
@@ -105,41 +99,43 @@
 
   });
 
-  function loadVideos(){
+  // 🎥 Video List (UPLOAD MORE HERE)
+  const videos = [
+    {
+      title: "Lesson 1 – Algebra Basics",
+      file: "videos/video1.mp4"
+    },
+    {
+      title: "Lesson 2 – Trigonometry Strategy",
+      file: "videos/video2.mp4"
+    },
+    {
+      title: "Lesson 3 – Science Important Questions",
+      file: "videos/video3.mp4"
+    },
+    {
+      title: "Lesson 4 – English Writing Tips",
+      file: "videos/video4.mp4"
+    }
+  ];
 
-    // Static for now (later we make dynamic from Firestore)
-    const videos = [
-      {
-        title: "Lesson 1 – Algebra Basics",
-        url: "videos/video1.mp4"
-      },
-      {
-        title: "Lesson 2 – Trigonometry Strategy",
-        url: "videos/video2.mp4"
-      },
-      {
-        title: "Lesson 3 – Science Important Questions",
-        url: "videos/video3.mp4"
-      }
-    ];
+  const container = document.getElementById("videoContainer");
 
-    videos.forEach(video => {
+  videos.forEach(video => {
 
-      const div = document.createElement("div");
-      div.className = "video-card";
+    const card = document.createElement("div");
+    card.className = "video-card";
 
-      div.innerHTML = `
-        <h3>${video.title}</h3>
-        <video controls>
-          <source src="${video.url}" type="video/mp4">
-        </video>
-      `;
+    card.innerHTML = `
+      <div class="video-title">${video.title}</div>
+      <video controls controlsList="nodownload">
+        <source src="${video.file}" type="video/mp4">
+      </video>
+    `;
 
-      container.appendChild(div);
+    container.appendChild(card);
 
-    });
-
-  }
+  });
 
   function goBack(){
     window.location.href = "dashboard.html";
@@ -149,4 +145,3 @@
 
 </body>
 </html>
-
