@@ -15,7 +15,7 @@
       background:linear-gradient(135deg,#0f0f1a,#1a1a2e);
       color:white;
       font-family:Poppins, sans-serif;
-      padding:20px;
+      padding:80px;
     }
 
     h2{
@@ -50,6 +50,35 @@
       font-weight:bold;
       cursor:pointer;
     }
+.bottom-nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  height:65px;
+  background:#111827;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  box-shadow:0 -5px 20px rgba(255,215,0,0.1);
+  z-index:1000;
+}
+
+.nav-item{
+  text-align:center;
+  font-size:12px;
+  cursor:pointer;
+  color:#aaa;
+}
+
+.nav-item span{
+  display:block;
+  font-size:20px;
+}
+
+.nav-item.active{
+  color:#FFD700;
+}
 
   </style>
 </head>
@@ -141,8 +170,55 @@
   function goBack(){
     window.location.href = "dashboard.html";
   }
+function goDashboard(){
+  window.location.href = "dashboard.html";
+}
+
+function goLive(){
+  window.location.href = "live.html";
+}
+
+function goRecorded(){
+  window.location.href = "recorded.html";
+}
+
+function goNotes(){
+  window.location.href = "notes.html";
+}
+
+function goProfile(){
+  window.location.href = "profile.html";
+}
 
 </script>
+<div class="bottom-nav">
+
+  <div class="nav-item active" onclick="goDashboard()">
+    <span>🏠</span>
+    Dashboard
+  </div>
+
+  <div class="nav-item" onclick="goLive()">
+    <span>🔴</span>
+    Live
+  </div>
+
+  <div class="nav-item" onclick="goNotes()">
+    <span>📄</span>
+    Notes
+  </div>
+
+  <div class="nav-item" onclick="goRecorded()">
+    <span>🎥</span>
+    Recorded
+  </div>
+
+  <div class="nav-item" onclick="goProfile()">
+    <span>👤</span>
+    Profile
+  </div>
+
+</div>
 
 </body>
 </html>
