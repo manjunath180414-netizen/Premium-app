@@ -4,7 +4,7 @@
   <title>HiS Academy Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Firebase Scripts -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -21,6 +21,10 @@
       padding:20px;
       max-width:1000px;
       margin:auto;
+    }
+
+    h2{
+      color:#FFD700;
     }
 
     .banner{
@@ -41,36 +45,49 @@
       box-shadow:0 0 25px rgba(255,215,0,0.15);
     }
 
-    .highlight{ color:#FFD700; }
-
     .countdown{
-      margin-top:10px;
-      color:#ffcc00;
+      color:#FFD700;
       font-weight:bold;
+      margin-top:10px;
     }
 
+    /* Motivation Slider */
+    .slider{
+      display:flex;
+      overflow-x:auto;
+      gap:15px;
+    }
+
+    .slide{
+      min-width:250px;
+      background:#1f2937;
+      padding:15px;
+      border-radius:15px;
+      text-align:center;
+      box-shadow:0 0 20px rgba(255,215,0,0.1);
+    }
+
+    .slide img{
+      width:100%;
+      border-radius:10px;
+      margin-bottom:10px;
+    }
+
+    /* Batches */
     .batch-container{
       display:flex;
       overflow-x:auto;
       gap:15px;
-      padding-bottom:10px;
     }
 
-    .batch-card{
+    .batch{
       min-width:220px;
       background:#1f2937;
-      border-radius:15px;
       padding:15px;
+      border-radius:15px;
+      text-align:center;
       cursor:pointer;
       position:relative;
-      text-align:center;
-      transition:0.3s;
-    }
-
-    .batch-card img{
-      width:100%;
-      border-radius:10px;
-      margin-bottom:10px;
     }
 
     .locked::after{
@@ -96,7 +113,7 @@
       animation:shake 0.3s;
     }
 
-    .button{
+    .btn{
       width:100%;
       padding:14px;
       border-radius:12px;
@@ -109,135 +126,100 @@
     .live-btn{background:#FFD700;color:black;}
     .record-btn{background:#1f2937;color:white;border:1px solid #FFD700;}
     .call-btn{background:#25D366;color:white;}
-.slider-container{
-  display:flex;
-  overflow-x:auto;
-  gap:15px;
-  scroll-snap-type:x mandatory;
-}
-
-.slide{
-  min-width:250px;
-  background:#1f2937;
-  padding:15px;
-  border-radius:15px;
-  text-align:center;
-  scroll-snap-align:start;
-  box-shadow:0 0 20px rgba(255,215,0,0.1);
-}
-
-.slide img{
-  width:100%;
-  border-radius:10px;
-  margin-bottom:10px;
-}
-
-.slide p{
-  font-style:italic;
-  font-size:14px;
-}
 
   </style>
 </head>
 <body>
 
 <div class="container">
-<!-- Motivation Section -->
-<div class="card">
-  <h3 class="highlight">🔥 Stay Focused. Stay Hungry.</h3>
-
-  <div class="slider-container">
-    
-    <div class="slide">
-      <img src="manjunath.JPG">
-      <p>"The harder you work for something, the greater you'll feel when you achieve it."</p>
-    </div>
-
-    <div class="slide">
-      <img src="mot1.jpg">
-      <p>"Success doesn’t come from comfort zones."</p>
-    </div>
-
-    <div class="slide">
-      <img src="mot2.jpg">
-      <p>"Discipline today. Result tomorrow."</p>
-    </div>
-
-    <div class="slide">
-      <img src="mot3.jpg">
-      <p>"Fear of exam? Good. Use it."</p>
-    </div>
-
-    <div class="slide">
-      <img src="mot4.jpg">
-      <p>"90+ is not luck. It is preparation."</p>
-    </div>
-
-  </div>
-</div>
 
   <h2>Hi, <span id="studentName">Student</span> 👋</h2>
 
   <div class="banner">
-    🚀 Mega Scholarship Test Coming Soon | Stay Prepared!
+    Stay Consistent. 90+ Is Possible. Your Future Is Watching.
   </div>
 
+  <!-- Countdown -->
   <div class="card">
-    <p>Total Hours Finished: <span class="highlight" id="totalHours">0</span> Hours</p>
+    <h3>Time Left for SSLC Exam</h3>
     <div class="countdown" id="countdown"></div>
+  </div>
+
+  <!-- Motivation Slider -->
+  <div class="card">
+    <h3>Motivation</h3>
+    <div class="slider">
+
+      <div class="slide">
+        <img src="manjunath.JPG">
+        <p>"The harder you work for something, the greater you'll feel when you achieve it."</p>
+      </div>
+
+      <div class="slide">
+        <img src="mot1.jpg">
+        <p>"Success doesn’t come from comfort zones."</p>
+      </div>
+
+      <div class="slide">
+        <img src="mot2.jpg">
+        <p>"Discipline today. Result tomorrow."</p>
+      </div>
+
+      <div class="slide">
+        <img src="mot3.jpg">
+        <p>"Fear of exam? Good. Use it."</p>
+      </div>
+
+      <div class="slide">
+        <img src="mot4.jpg">
+        <p>"90+ is not luck. It is preparation."</p>
+      </div>
+
+    </div>
   </div>
 
   <!-- Batches -->
   <div class="card">
     <h3>Batches</h3>
-
     <div class="batch-container">
 
-      <!-- Unlocked -->
-      <div class="batch-card" onclick="openCourse()">
-        <img src="sslc.jpg">
-        <b class="highlight">SSLC 2026 Crash Course</b>
+      <div class="batch" onclick="openRecorded()">
+        <b>SSLC 2026 Crash Course</b>
         <p>Study Now</p>
       </div>
 
-      <!-- Locked -->
-      <div class="batch-card locked" onclick="locked(this)">
-        <img src="batch2.jpg">
+      <div class="batch locked" onclick="locked(this)">
         NEET 2026
       </div>
 
-      <div class="batch-card locked" onclick="locked(this)">
-        <img src="batch3.jpg">
+      <div class="batch locked" onclick="locked(this)">
         KCET Mastery
       </div>
 
-      <div class="batch-card locked" onclick="locked(this)">
-        <img src="batch4.jpg">
+      <div class="batch locked" onclick="locked(this)">
         Exam Booster
       </div>
 
     </div>
   </div>
 
-  <button class="button live-btn" onclick="playLive()">
+  <button class="btn live-btn" onclick="openLive()">
     ▶ Watch Live Classes
   </button>
 
-  <div id="liveVideo"></div>
-
-  <button class="button record-btn" onclick="openRecorded()">
+  <button class="btn record-btn" onclick="openRecorded()">
     🎥 Watch Recorded Classes
   </button>
 
-  <button class="button call-btn" onclick="callNow()">
-    📞 Speak with Manjunath Sir
+  <button class="btn call-btn" onclick="callNow()">
+    📞 Speak to Manjunath Sir
   </button>
 
 </div>
 
 <script>
 
-  // 🔥 Firebase Config
+  // Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyCehyZQukDfslKTY_u9yXcUrzGtMNHvuPA",
     authDomain: "his-academy.firebaseapp.com",
@@ -249,53 +231,37 @@
   };
 
   firebase.initializeApp(firebaseConfig);
-
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  // 🔥 Protect Dashboard
+  // Protect Dashboard
   auth.onAuthStateChanged((user) => {
-
-    if (user) {
-
+    if(user){
       db.collection("students").doc(user.uid).get()
-      .then((doc) => {
-
-        if (!doc.exists) {
-          window.location.href = "login.html";
-        }
-
-        const data = doc.data();
-
-        if (data.paymentStatus !== "paid") {
-          alert("Please complete enrollment first.");
+      .then(doc => {
+        if(!doc.exists || doc.data().paymentStatus !== "paid"){
           window.location.href = "courses.html";
         }
-
-        document.getElementById("studentName").innerText = data.name;
-        document.getElementById("totalHours").innerText = data.totalStudyHours;
-
+        document.getElementById("studentName").innerText = doc.data().name;
       });
-
     } else {
       window.location.href = "login.html";
     }
-
   });
 
   // Countdown
   const examDate = new Date("March 18, 2026 10:00:00").getTime();
-  setInterval(function(){
+  setInterval(() => {
     const now = new Date().getTime();
     const distance = examDate - now;
 
-    const days = Math.floor(distance / (1000*60*60*24));
-    const hours = Math.floor((distance%(1000*60*60*24))/(1000*60*60));
-    const minutes = Math.floor((distance%(1000*60*60))/(1000*60));
-    const seconds = Math.floor((distance%(1000*60))/1000);
+    const d = Math.floor(distance/(1000*60*60*24));
+    const h = Math.floor((distance%(1000*60*60*24))/(1000*60*60));
+    const m = Math.floor((distance%(1000*60*60))/(1000*60));
+    const s = Math.floor((distance%(1000*60))/1000);
 
     document.getElementById("countdown").innerHTML =
-      "⏳ "+days+"d "+hours+"h "+minutes+"m "+seconds+"s left for SSLC Exam!";
+      d+"d "+h+"h "+m+"m "+s+"s remaining";
   },1000);
 
   function locked(el){
@@ -303,42 +269,17 @@
     setTimeout(()=>el.classList.remove("shake"),300);
   }
 
-  function openCourse(){
-    window.location.href="recorded.html";
-  }
-
   function openRecorded(){
-    window.location.href="recorded.html";
+    window.location.href = "recorded.html";
   }
 
-  <button class="button live-btn" onclick="openLive()">
-  🔴 Watch Live Classes
-</button>
-
+  function openLive(){
+    window.location.href = "live.html";
+  }
 
   function callNow(){
-    window.location.href="tel:02269719375";
+    window.location.href = "tel:02269719375";
   }
-// Auto horizontal scroll
-const slider = document.querySelector('.slider-container');
-
-let scrollAmount = 0;
-
-setInterval(() => {
-  if(slider){
-    scrollAmount += 270;
-    if(scrollAmount >= slider.scrollWidth){
-      scrollAmount = 0;
-    }
-    slider.scrollTo({
-      left: scrollAmount,
-      behavior: "smooth"
-    });
-  }
-}, 4000);
-function openLive(){
-  window.location.href = "live.html";
-}
 
 </script>
 
