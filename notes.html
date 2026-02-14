@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Notes - HIS Academy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body{
+      margin:0;
+      font-family:Poppins, sans-serif;
+      background:linear-gradient(135deg,#0f0f1a,#1a1a2e);
+      color:white;
+      padding-bottom:80px;
+    }
+
+    .container{
+      padding:20px;
+      max-width:1000px;
+      margin:auto;
+    }
+
+    h2{
+      color:#FFD700;
+      margin-bottom:20px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+      gap:15px;
+    }
+
+    .card{
+      background:#111827;
+      padding:20px;
+      border-radius:15px;
+      text-align:center;
+      cursor:pointer;
+      box-shadow:0 0 20px rgba(255,215,0,0.1);
+      transition:0.3s;
+    }
+
+    .card:hover{
+      transform:translateY(-5px);
+    }
+
+    .card-title{
+      font-weight:bold;
+      color:#FFD700;
+    }
+
+    .back-btn{
+      margin-top:15px;
+      background:#FFD700;
+      color:black;
+      border:none;
+      padding:10px 15px;
+      border-radius:8px;
+      cursor:pointer;
+    }
+
+    .pdf-viewer{
+      width:100%;
+      height:600px;
+      border:none;
+      border-radius:12px;
+      margin-top:20px;
+      background:white;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav{
+      position:fixed;
+      bottom:0;
+      left:0;
+      width:100%;
+      height:65px;
+      background:#111827;
+      display:flex;
+      justify-content:space-around;
+      align-items:center;
+      box-shadow:0 -5px 20px rgba(255,215,0,0.1);
+      z-index:1000;
+    }
+
+    .nav-item{
+      text-align:center;
+      font-size:12px;
+      cursor:pointer;
+      color:#aaa;
+    }
+
+    .nav-item span{
+      display:block;
+      font-size:20px;
+    }
+
+    .nav-item.active{
+      color:#FFD700;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <h2 id="pageTitle">Select Subject</h2>
+
+  <div id="contentArea" class="grid"></div>
+
+  <div id="pdfContainer"></div>
+
+</div>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+
+  <div class="nav-item" onclick="goDashboard()">
+    <span>🏠</span>
+    Dashboard
+  </div>
+
+  <div class="nav-item" onclick="goLive()">
+    <span>🔴</span>
+    Live
+  </div>
+
+  <div class="nav-item active">
+    <span>📄</span>
+    Notes
+  </div>
+
+  <div class="nav-item" onclick="goRecorded()">
+    <span>🎥</span>
+    Recorded
+  </div>
+
+  <div class="nav-item" onclick="goProfile()">
+    <span>👤</span>
+    Profile
+  </div>
+
+</div>
+
+<script>
+
+  const contentArea = document.getElementById("contentArea");
+  const pageTitle = document.getElementById("pageTitle");
+  const pdfContainer = document.getElementById("pdfContainer");
+
+  const subjects = ["Kannada","English","Hindi","Maths","Science","Social"];
+
+  function loadSubjects(){
+    contentArea.innerHTML="";
+    pdfContainer.innerHTML="";
+    pageTitle.innerText="Select Subject";
+
+    subjects.forEach(subject=>{
+      const card=document.createElement("div");
+      card.className="card";
+      card.innerHTML=`<div class="card-title">${subject}</div>`;
+      card.onclick=()=>loadChapters(subject);
+      contentArea.appendChild(card);
+    });
+  }
+
+  function loadChapters(subject){
+    contentArea.innerHTML="";
+    pdfContainer.innerHTML="";
+    pageTitle.innerText=subject+" - Select Chapter";
+
+    for(let i=1;i<=3;i++){
+      const card=document.createElement("div");
+      card.className="card";
+      card.innerHTML=`<div class="card-title">Chapter ${i}</div>`;
+      card.onclick=()=>openPDF(subject.toLowerCase()+"_ch"+i+".pdf");
+      contentArea.appendChild(card);
+    }
+
+    const backBtn=document.createElement("button");
+    backBtn.className="back-btn";
+    backBtn.innerText="⬅ Back";
+    backBtn.onclick=loadSubjects;
+    contentArea.appendChild(backBtn);
+  }
+
+  function openPDF(file){
+    contentArea.innerHTML="";
+    pageTitle.innerText="Notes Viewer";
+
+    pdfContainer.innerHTML=`
+      <iframe class="pdf-viewer" src="${file}#toolbar=0"></iframe>
+      <button class="back-btn" onclick="loadSubjects()">⬅ Back to Subjects</button>
+    `;
+  }
+
+  // Navigation
+  function goDashboard(){ window.location.href="dashboard.html"; }
+  function goLive(){ window.location.href="live.html"; }
+  function goRecorded(){ window.location.href="recorded.html"; }
+  function goProfile(){ window.location.href="profile.html"; }
+
+  // Initial Load
+  loadSubjects();
+
+</script>
+
+</body>
+</html>
+
