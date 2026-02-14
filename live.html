@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Live Class - HiS Academy</title>
+  <title>Live Class - HIS Academy</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Firebase -->
@@ -48,10 +48,18 @@
       border-radius:12px;
     }
 
-    iframe{
+    .pdf-viewer{
       width:100%;
-      height:500px;
+      height:600px;
+      border:none;
       border-radius:12px;
+      background:white;
+    }
+
+    .section-title{
+      color:#FFD700;
+      font-weight:bold;
+      margin-bottom:10px;
     }
 
     .watermark{
@@ -62,19 +70,13 @@
       font-size:18px;
       font-weight:bold;
       pointer-events:none;
-      animation:moveWatermark 10s infinite alternate;
+      animation:moveWatermark 12s infinite alternate;
       z-index:999;
     }
 
     @keyframes moveWatermark{
       0%{ transform: translate(0,0); }
       100%{ transform: translate(250px,200px); }
-    }
-
-    .section-title{
-      color:#FFD700;
-      font-weight:bold;
-      margin-bottom:10px;
     }
 
     .btn{
@@ -98,7 +100,7 @@
 
 <div class="container">
 
-  <!-- Watermark -->
+  <!-- Dynamic Watermark -->
   <div class="watermark" id="watermarkText">
     Loading...
   </div>
@@ -112,11 +114,16 @@
     </video>
   </div>
 
-  <!-- PDF Notes -->
+  <!-- PDF Section -->
   <div class="card">
     <div class="section-title">Class Notes</div>
 
-    <iframe src="chapter1.pdf"></iframe>
+    <!-- Upload your PDF inside notes folder -->
+    <iframe 
+      class="pdf-viewer"
+      src="chapter1.pdf#toolbar=0">
+    </iframe>
+
   </div>
 
   <button class="btn" onclick="goBack()">
@@ -127,7 +134,6 @@
 
 <script>
 
-  // Disable right click
   document.addEventListener("contextmenu", event => event.preventDefault());
 
   const firebaseConfig = {
@@ -148,12 +154,8 @@
           window.location.href="courses.html";
         }
 
-        const phone = doc.data().phone;
-        const email = doc.data().email;
-
         document.getElementById("watermarkText").innerText =
-          phone + " | " + email;
-
+          doc.data().phone + " | " + doc.data().email;
       });
     } else {
       window.location.href="login.html";
@@ -168,3 +170,4 @@
 
 </body>
 </html>
+
