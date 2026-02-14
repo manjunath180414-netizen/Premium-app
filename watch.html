@@ -61,7 +61,9 @@
     appId: "1:573278549264:web:ca2ff160b5a100cc7d2195"
   };
 
+  if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
+}
 
   const auth = firebase.auth();
   const db = firebase.firestore();
