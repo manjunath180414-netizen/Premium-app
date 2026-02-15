@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SSLC 2026 Study Master Plan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body{
+      margin:0;
+      font-family:Poppins, sans-serif;
+      background:linear-gradient(135deg,#0f0f1a,#1a1a2e);
+      color:white;
+    }
+
+    .container{
+      padding:20px;
+      max-width:1100px;
+      margin:auto;
+    }
+
+    h2,h3{
+      color:#FFD700;
+    }
+
+    .card{
+      background:#111827;
+      padding:20px;
+      border-radius:18px;
+      margin-bottom:20px;
+      box-shadow:0 0 25px rgba(255,215,0,0.15);
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:10px;
+    }
+
+    th,td{
+      padding:10px;
+      border-bottom:1px solid #333;
+      text-align:left;
+    }
+
+    th{
+      color:#FFD700;
+    }
+
+    .calendar-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(80px,1fr));
+      gap:10px;
+      margin-top:15px;
+    }
+
+    .date-card{
+      background:#1f2937;
+      padding:15px;
+      border-radius:10px;
+      text-align:center;
+      cursor:pointer;
+      transition:0.3s;
+    }
+
+    .date-card:hover{
+      background:#FFD700;
+      color:black;
+    }
+
+    .session-box{
+      margin-bottom:20px;
+      padding:15px;
+      background:#1f2937;
+      border-radius:10px;
+    }
+
+    .session-title{
+      color:#FFD700;
+      font-weight:bold;
+      margin-bottom:8px;
+    }
+
+    .back-btn{
+      margin-top:15px;
+      padding:10px 15px;
+      background:#FFD700;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:bold;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- MASTER HEADER -->
+  <div class="card">
+    <h2>📘 SSLC 2026 – STUDY MASTER PLAN</h2>
+    <p>March 1 – April 1</p>
+    <p><strong>Total Study Hours:</strong> 346 hrs</p>
+  </div>
+
+  <!-- EXAM TIMETABLE -->
+  <div class="card">
+    <h3>🗓 EXAM TIMETABLE</h3>
+    <table>
+      <tr><th>Date</th><th>Subject</th></tr>
+      <tr><td>March 18</td><td>Kannada</td></tr>
+      <tr><td>March 23</td><td>Science</td></tr>
+      <tr><td>March 25</td><td>English</td></tr>
+      <tr><td>March 28</td><td>Mathematics</td></tr>
+      <tr><td>March 30</td><td>Hindi</td></tr>
+      <tr><td>April 2</td><td>Social Science</td></tr>
+    </table>
+  </div>
+
+  <!-- PHASE OVERVIEW -->
+  <div class="card">
+    <h3>📅 MASTER STUDY CALENDAR (OVERVIEW)</h3>
+    <p><strong>Phase 1 – March 1 to March 17</strong><br>
+    Foundation Phase<br>
+    Weekdays: 9.5 hrs<br>
+    Saturday: 10.5 hrs<br>
+    Sunday: 16 hrs</p>
+
+    <p><strong>Phase 2 – March 19 to April 1</strong><br>
+    Exam Phase<br>
+    Non-exam days: 15.5 hrs<br>
+    Exam day evening: 2 hrs</p>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="card" id="calendarSection">
+    <h3>🔥 CLICK-BASED DAILY SPLIT STRUCTURE</h3>
+    <div id="calendar" class="calendar-grid"></div>
+  </div>
+
+  <!-- DAY DETAILS -->
+  <div class="card" id="dayDetails" style="display:none;">
+    <h3 id="selectedDate"></h3>
+    <div id="sessions"></div>
+    <button class="back-btn" onclick="goBack()">⬅ Back to Calendar</button>
+  </div>
+
+</div>
+
+<script>
+
+function generateCalendar(){
+  const calendar=document.getElementById("calendar");
+  for(let i=1;i<=31;i++){
+    createDate("March",i);
+  }
+  createDate("April",1);
+}
+
+function createDate(month,day){
+  const div=document.createElement("div");
+  div.className="date-card";
+  div.innerText=month+" "+day;
+  div.onclick=()=>showDay(month,day);
+  document.getElementById("calendar").appendChild(div);
+}
+
+function showDay(month,day){
+
+  document.getElementById("calendarSection").style.display="none";
+  document.getElementById("dayDetails").style.display="block";
+  document.getElementById("selectedDate").innerText = month+" "+day;
+
+  const sessionsDiv=document.getElementById("sessions");
+  sessionsDiv.innerHTML="";
+
+  let sessions=[];
+  const dateObj=new Date(2026,month==="March"?2:3,day);
+  const weekday=dateObj.getDay();
+
+  // Phase 1
+  if(month==="March" && day<=17){
+
+    if(weekday===0){ // Sunday
+      sessions=[
+        {title:"Morning (4:00 – 10:00)",subs:["Kannada","Science"]},
+        {title:"Mid-Morning (11:00 – 2:30)",subs:["Mathematics","Social"]},
+        {title:"Evening (4:00 – 10:30)",subs:["English","Hindi","Science Revision"]}
+      ];
+    }
+    else if(weekday===6){ // Saturday
+      sessions=[
+        {title:"Morning",subs:["Kannada","Science"]},
+        {title:"Afternoon + Evening",subs:["Mathematics","Social","English"]}
+      ];
+    }
+    else{
+      sessions=[
+        {title:"Morning (4:30 – 7:30)",subs:["Kannada","Science"]},
+        {title:"Evening (5:00 – 11:30)",subs:["Mathematics","Social","English / Hindi Rotation"]}
+      ];
+    }
+  }
+
+  else if(month==="March" && day===18){
+    sessions=[
+      {title:"Morning",subs:["Light Kannada Revision"]},
+      {title:"Evening (2 hrs)",subs:["Science"]}
+    ];
+  }
+
+  else if(month==="March" && day>=19 && day<=22){
+    sessions=[
+      {title:"Morning (4–9)",subs:["Science"]},
+      {title:"Mid (10:30–1:30)",subs:["Science"]},
+      {title:"Afternoon (2:30–5)",subs:["Mathematics"]},
+      {title:"Evening (6–11)",subs:["English","Social"]}
+    ];
+  }
+
+  else if(month==="March" && day===23){
+    sessions=[
+      {title:"Morning",subs:["Revision"]},
+      {title:"Evening (2 hrs)",subs:["English"]}
+    ];
+  }
+
+  else if(month==="March" && day===24){
+    sessions=[
+      {title:"Morning",subs:["English"]},
+      {title:"Mid",subs:["English"]},
+      {title:"Evening",subs:["Mathematics","Hindi"]}
+    ];
+  }
+
+  else if(month==="March" && day===25){
+    sessions=[
+      {title:"Evening (2 hrs)",subs:["Mathematics"]}
+    ];
+  }
+
+  else if(month==="March" && (day===26||day===27)){
+    sessions=[
+      {title:"Morning",subs:["Mathematics"]},
+      {title:"Mid",subs:["Mathematics"]},
+      {title:"Evening",subs:["Hindi","Social"]}
+    ];
+  }
+
+  else if(month==="March" && day===28){
+    sessions=[
+      {title:"Evening",subs:["Hindi"]}
+    ];
+  }
+
+  else if(month==="March" && day===29){
+    sessions=[
+      {title:"Morning",subs:["Hindi"]},
+      {title:"Evening",subs:["Social"]}
+    ];
+  }
+
+  else if(month==="March" && day===30){
+    sessions=[
+      {title:"Evening",subs:["Social"]}
+    ];
+  }
+
+  else if(month==="March" && day===31){
+    sessions=[
+      {title:"All Sessions",subs:["Social"]}
+    ];
+  }
+
+  else if(month==="April" && day===1){
+    sessions=[
+      {title:"Morning",subs:["Social"]},
+      {title:"Evening",subs:["Light Full Syllabus Recap"]}
+    ];
+  }
+
+  sessions.forEach(s=>{
+    const box=document.createElement("div");
+    box.className="session-box";
+    box.innerHTML=`
+      <div class="session-title">${s.title}</div>
+      <div>${s.subs.join("<br>")}</div>
+    `;
+    sessionsDiv.appendChild(box);
+  });
+}
+
+function goBack(){
+  document.getElementById("calendarSection").style.display="block";
+  document.getElementById("dayDetails").style.display="none";
+}
+
+generateCalendar();
+
+</script>
+
+</body>
+</html>
+
