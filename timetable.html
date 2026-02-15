@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSLC 2026 Study Master Plan</title>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:linear-gradient(135deg,#0f0f1a,#1a1a2e);
+color:white;
+padding-bottom:70px;
+}
+
+#loading{
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+background:#0f0f1a;
+display:flex;
+align-items:center;
+justify-content:center;
+color:#FFD700;
+font-size:20px;
+z-index:9999;
+}
+
+.header{
+text-align:center;
+padding:20px;
+font-size:22px;
+color:#FFD700;
+font-weight:bold;
+}
+
+.card{
+background:#1f1f35;
+margin:15px;
+padding:15px;
+border-radius:12px;
+box-shadow:0 0 15px rgba(255,215,0,0.3);
+}
+
+.calendar{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+gap:10px;
+}
+
+.date-card{
+background:#26264a;
+padding:12px;
+border-radius:10px;
+text-align:center;
+cursor:pointer;
+transition:0.3s;
+font-size:14px;
+}
+
+.date-card:hover{
+background:#FFD700;
+color:black;
+}
+
+.session{
+background:#26264a;
+padding:12px;
+margin:10px 0;
+border-radius:10px;
+}
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+width:100%;
+background:#111122;
+display:flex;
+justify-content:space-around;
+padding:10px 0;
+border-top:1px solid #333;
+}
+
+.bottom-nav a{
+color:white;
+text-decoration:none;
+font-size:14px;
+}
+
+.bottom-nav .active{
+color:#FFD700;
+font-weight:bold;
+}
+</style>
+</head>
+<body>
+
+<div id="loading">Checking Access...</div>
+
+<div class="header">📘 SSLC 2026 – STUDY MASTER PLAN</div>
+
+<div class="card">
+<h3 style="color:#FFD700;">🗓 Exam Dates</h3>
+<p>March 18 – Kannada</p>
+<p>March 23 – Science</p>
+<p>March 25 – English</p>
+<p>March 28 – Mathematics</p>
+<p>March 30 – Hindi</p>
+<p>April 2 – Social Science</p>
+</div>
+
+<div class="card">
+<h3 style="color:#FFD700;">📅 Master Calendar</h3>
+<div class="calendar" id="calendar"></div>
+</div>
+
+<div class="card" id="dailyView" style="display:none;">
+<h3 id="dateTitle" style="color:#FFD700;"></h3>
+<div id="sessions"></div>
+</div>
+
+<div class="bottom-nav">
+<a href="dashboard.html">Dashboard</a>
+<a href="live.html">Live</a>
+<a href="notes.html">Notes</a>
+<a href="recorded.html">Recorded</a>
+<a href="timetable.html" class="active">Timetable</a>
+<a href="profile.html">Profile</a>
+</div>
+
+<script>
+/* 🔥 Your Firebase Config */
+const firebaseConfig = {
+  apiKey: "AIzaSyCehyZQukDfslKTY_u9yXcUrzGtMNHvuPA",
+  authDomain: "his-academy.firebaseapp.com",
+  projectId: "his-academy",
+  storageBucket: "his-academy.firebasestorage.app",
+  messagingSenderId: "573278549264",
+  appId: "1:573278549264:web:ca2ff160b5a100cc7d2195",
+  measurementId: "G-8WPMS7H33F"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+/* 🔒 ACCESS CONTROL */
+auth.onAuthStateChanged(async (user)=>{
+  if(!user){
+      window.location.href="profile.html";
+      return;
+  }
+
+  try{
+      const doc = await db.collection("users").doc(user.uid).get();
+
+      if(!doc.exists){
+          console.log("User doc not found");
+          window.location.href="profile.html";
+          return;
+      }
+
+      const data = doc.data();
+
+      // Accept both formats
+      const isPaid = data.paymentStatus === "paid" || data.paid === true;
+
+      if(!isPaid){
+          window.location.href="profile.html";
+          return;
+      }
+
+      document.getElementById("loading").style.display="none";
+
+  }catch(error){
+      console.error(error);
+      window.location.href="profile.html";
+  }
+});
+
+/* 📆 TIMETABLE DATA */
+const timetable = {
+"March 1":[
+{time:"4:00–10:00", subjects:"Kannada, Science"},
+{time:"11:00–2:30", subjects:"Mathematics, Social"},
+{time:"4:00–10:30", subjects:"English, Hindi, Science Revision"}
+],
+"March 2":[
+{time:"4:30–7:30", subjects:"Kannada, Science"},
+{time:"5:00–11:30", subjects:"Mathematics, Social, English"}
+],
+"March 18":[
+{time:"Morning", subjects:"Light Kannada Revision"},
+{time:"Evening (2 hrs)", subjects:"Science"}
+],
+"March 19":[
+{time:"4:00–9:00", subjects:"Science"},
+{time:"10:30–1:30", subjects:"Science"},
+{time:"2:30–5:00", subjects:"Mathematics"},
+{time:"6:00–11:00", subjects:"English / Social"}
+]
+};
+
+/* 📅 Generate Calendar */
+const calendar = document.getElementById("calendar");
+
+for(let i=1;i<=31;i++){
+  const date = "March "+i;
+  const div = document.createElement("div");
+  div.className="date-card";
+  div.innerText=date;
+  div.onclick=()=>showDay(date);
+  calendar.appendChild(div);
+}
+
+/* Show Day Details */
+function showDay(date){
+  const data = timetable[date];
+  const sessionsDiv = document.getElementById("sessions");
+  const title = document.getElementById("dateTitle");
+
+  sessionsDiv.innerHTML="";
+  title.innerText="📆 "+date;
+
+  if(!data){
+      sessionsDiv.innerHTML="<p>No detailed schedule added yet.</p>";
+  }else{
+      data.forEach(item=>{
+          sessionsDiv.innerHTML+=`
+          <div class="session">
+            <strong style="color:#FFD700;">${item.time}</strong>
+            <p>${item.subjects}</p>
+          </div>`;
+      });
+  }
+
+  document.getElementById("dailyView").style.display="block";
+  window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+}
+</script>
+
+</body>
+</html>
