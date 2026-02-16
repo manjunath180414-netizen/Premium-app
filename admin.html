@@ -229,50 +229,47 @@ function validateAdmin(){
   });
 }
 
-function loadStudents(){
+async function loadStudents(){
 
   const table=document.getElementById("studentTable");
+  table.innerHTML="";
 
-  // 🔥 REAL-TIME LISTENER
-  db.collection("students").onSnapshot(snapshot=>{
-    table.innerHTML="";
+  const snapshot = await db.collection("students").get();
 
-    snapshot.forEach(doc=>{
-      const data=doc.data();
-      const tr=document.createElement("tr");
+  snapshot.forEach(doc=>{
+    const data=doc.data();
+    const tr=document.createElement("tr");
 
-      let statusClass="notpaid";
-      if(data.paymentStatus==="paid") statusClass="paid";
-      else if(data.paymentStatus==="pending") statusClass="pending";
+    let statusClass="notpaid";
+    if(data.paymentStatus==="paid") statusClass="paid";
+    else if(data.paymentStatus==="pending") statusClass="pending";
 
-      let requestedBadge="";
-      if(data.requestSubmitted){
-        requestedBadge=`<span class="badge requested">Requested</span>`;
-      }
+    let requestedBadge="";
+    if(data.requestSubmitted){
+      requestedBadge=`<span class="badge requested">Requested</span>`;
+    }
 
-      let toggle="";
-      if(data.paymentStatus!=="paid"){
-        toggle=`
-          <label class="switch">
-            <input type="checkbox" onchange="confirmPayment('${doc.id}')">
-            <span class="slider"></span>
-          </label>
-        `;
-      }
-
-      tr.innerHTML=`
-        <td>${data.name || ""} ${requestedBadge}</td>
-        <td>${data.phone || ""}</td>
-        <td>${data.email || ""}</td>
-        <td><span class="badge ${statusClass}">
-          ${data.paymentStatus || "not_paid"}
-        </span></td>
-        <td>${toggle}</td>
+    let toggle="";
+    if(data.paymentStatus!=="paid"){
+      toggle=`
+        <label class="switch">
+          <input type="checkbox" onchange="confirmPayment('${doc.id}')">
+          <span class="slider"></span>
+        </label>
       `;
+    }
 
-      table.appendChild(tr);
-    });
+    tr.innerHTML=`
+      <td>${data.name || ""} ${requestedBadge}</td>
+      <td>${data.phone || ""}</td>
+      <td>${data.email || ""}</td>
+      <td><span class="badge ${statusClass}">
+        ${data.paymentStatus || "not_paid"}
+      </span></td>
+      <td>${toggle}</td>
+    `;
 
+    table.appendChild(tr);
   });
 
 }
