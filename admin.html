@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>HIS Academy - Admin</title>
+  <title>HIS Academy Admin</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -17,7 +18,8 @@
       color:white;
     }
 
-    .center-screen{
+    /* ACCESS SCREEN */
+    .center{
       height:100vh;
       display:flex;
       justify-content:center;
@@ -35,7 +37,6 @@
 
     h2{
       color:#FFD700;
-      margin-bottom:10px;
     }
 
     input{
@@ -59,6 +60,7 @@
       cursor:pointer;
     }
 
+    /* ADMIN PANEL */
     #adminPanel{
       display:none;
       padding:30px;
@@ -95,10 +97,10 @@
 
     .requested{
       background:#00aa55;
-      margin-left:5px;
+      margin-left:6px;
     }
 
-    /* Toggle Switch */
+    /* Toggle */
     .switch {
       position: relative;
       display: inline-block;
@@ -111,10 +113,7 @@
     .slider {
       position: absolute;
       cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background-color: #ccc;
       transition: .4s;
       border-radius: 24px;
@@ -145,36 +144,39 @@
 <body>
 
 <!-- ACCESS SCREEN -->
-<div id="accessScreen" class="center-screen">
+<div id="accessScreen" class="center">
   <div class="card">
     <h2>🔐 Administrative Access</h2>
-    <p>This area is restricted.</p>
+    <p>Restricted Area</p>
     <input type="password" id="secretInput" placeholder="Enter Master Key">
-    <button onclick="checkSecret()">Verify Access</button>
+    <button onclick="checkSecret()">Verify</button>
   </div>
 </div>
 
-<!-- ADMIN PANEL -->
+<!-- ADMIN DASHBOARD -->
 <div id="adminPanel">
   <h2>📊 HIS Academy Admin Dashboard</h2>
+
   <table>
     <thead>
       <tr>
         <th>Name</th>
         <th>Phone</th>
         <th>Email</th>
+        <th>Joined</th>
         <th>Status</th>
         <th>Approve</th>
       </tr>
     </thead>
     <tbody id="studentTable"></tbody>
   </table>
+
 </div>
 
 <script>
 
 const SECRET_KEY = "Gokulgroups";
-const ADMIN_EMAIL = "hisacademyofficial@gmail.com"; // change
+const ADMIN_EMAIL = "youradminemail@gmail.com"; // 🔴 CHANGE THIS
 
 const firebaseConfig = {
   apiKey: "AIzaSyCehyZQukDfslKTY_u9yXcUrzGtMNHvuPA",
@@ -204,7 +206,7 @@ function validateAdmin(){
       return;
     }
     if(user.email !== ADMIN_EMAIL){
-      alert("Unauthorized Access");
+      alert("Unauthorized");
       window.location.href="profile.html";
       return;
     }
@@ -215,15 +217,24 @@ function validateAdmin(){
 async function loadStudents(){
   const table=document.getElementById("studentTable");
   table.innerHTML="";
-  const snapshot = await db.collection("students").get();
+
+  const snapshot = await db.collection("students").orderBy("joinedOn","desc").get();
 
   snapshot.forEach(doc=>{
     const data=doc.data();
     const tr=document.createElement("tr");
 
     let statusClass="notpaid";
-    if(data.paymentStatus==="paid") statusClass="paid";
-    else if(data.paymentStatus==="pending") statusClass="pending";
+    let statusText="Not Paid";
+
+    if(data.paymentStatus==="paid"){
+      statusClass="paid";
+      statusText="Paid";
+    }
+    else if(data.paymentStatus==="pending"){
+      statusClass="pending";
+      statusText="Pending";
+    }
 
     let requestedBadge="";
     if(data.requestSubmitted){
@@ -241,10 +252,11 @@ async function loadStudents(){
     }
 
     tr.innerHTML=`
-      <td>${data.name} ${requestedBadge}</td>
-      <td>${data.phone}</td>
-      <td>${data.email}</td>
-      <td><span class="badge ${statusClass}">${data.paymentStatus || "not_paid"}</span></td>
+      <td>${data.name || ""} ${requestedBadge}</td>
+      <td>${data.phone || ""}</td>
+      <td>${data.email || ""}</td>
+      <td>${data.joinedOn ? new Date(data.joinedOn.seconds*1000).toLocaleDateString() : "-"}</td>
+      <td><span class="badge ${statusClass}">${statusText}</span></td>
       <td>${toggle}</td>
     `;
 
