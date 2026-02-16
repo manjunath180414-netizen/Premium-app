@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>HIS Academy - Admin Panel</title>
+  <title>HIS Academy - Admin</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -43,7 +42,6 @@
       margin-top:15px;
       border-radius:8px;
       border:none;
-      outline:none;
     }
 
     button{
@@ -92,12 +90,7 @@
     .pending{ background:#cc8800; }
     .notpaid{ background:#aa0000; }
 
-    .requested{
-      background:#00aa55;
-      margin-left:5px;
-    }
-
-    /* Toggle Switch */
+    /* Toggle */
     .switch {
       position: relative;
       display: inline-block;
@@ -110,8 +103,11 @@
     .slider {
       position: absolute;
       cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #444;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
       transition: .4s;
       border-radius: 24px;
     }
@@ -136,62 +132,38 @@
       transform: translateX(26px);
     }
 
-    .top-bar{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
-
-    .logout{
-      background:#aa0000;
-      color:white;
-      padding:8px 15px;
-      border-radius:8px;
-      cursor:pointer;
-      border:none;
-    }
-
   </style>
 </head>
 <body>
 
-<!-- ACCESS SCREEN -->
 <div id="accessScreen" class="center-screen">
   <div class="card">
     <h2>🔐 Administrative Access</h2>
-    <p>Enter Master Key to continue</p>
     <input type="password" id="secretInput" placeholder="Enter Master Key">
-    <button onclick="checkSecret()">Verify Access</button>
+    <button onclick="checkSecret()">Verify</button>
   </div>
 </div>
 
-<!-- ADMIN PANEL -->
 <div id="adminPanel">
-
-  <div class="top-bar">
-    <h2>📊 HIS Academy Admin Dashboard</h2>
-    <button class="logout" onclick="logout()">Logout</button>
-  </div>
-
+  <h2>📊 HIS Academy Admin Dashboard</h2>
   <table>
     <thead>
       <tr>
         <th>Name</th>
-        <th>Phone</th>
         <th>Email</th>
+        <th>Phone</th>
         <th>Status</th>
-        <th>Approve</th>
+        <th>Access</th>
       </tr>
     </thead>
     <tbody id="studentTable"></tbody>
   </table>
-
 </div>
 
 <script>
 
 const SECRET_KEY = "Gokulgroups";
-const ADMIN_EMAIL = "youradminemail@gmail.com"; // 🔴 CHANGE THIS
+const ADMIN_EMAIL = "hisacademyofficial@gmail.com"; // change this
 
 const firebaseConfig = {
   apiKey: "AIzaSyCehyZQukDfslKTY_u9yXcUrzGtMNHvuPA",
@@ -204,8 +176,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 function checkSecret(){
-  const input=document.getElementById("secretInput").value;
-  if(input === SECRET_KEY){
+  if(document.getElementById("secretInput").value === SECRET_KEY){
     document.getElementById("accessScreen").style.display="none";
     document.getElementById("adminPanel").style.display="block";
     validateAdmin();
@@ -244,45 +215,38 @@ async function loadStudents(){
     if(data.paymentStatus==="paid") statusClass="paid";
     else if(data.paymentStatus==="pending") statusClass="pending";
 
-    let requestedBadge="";
-    if(data.requestSubmitted){
-      requestedBadge=`<span class="badge requested">Requested</span>`;
-    }
-
-    let toggle="";
-    if(data.paymentStatus!=="paid"){
-      toggle=`
-        <label class="switch">
-          <input type="checkbox" onchange="confirmPayment('${doc.id}')">
-          <span class="slider"></span>
-        </label>
-      `;
-    }
+    const checked = data.paymentStatus==="paid" ? "checked" : "";
 
     tr.innerHTML=`
-      <td>${data.name || ""} ${requestedBadge}</td>
-      <td>${data.phone || ""}</td>
+      <td>${data.name || ""}</td>
       <td>${data.email || ""}</td>
-      <td><span class="badge ${statusClass}">
-        ${data.paymentStatus || "not_paid"}
-      </span></td>
-      <td>${toggle}</td>
+      <td>${data.phone || ""}</td>
+      <td><span class="badge ${statusClass}">${data.paymentStatus || "not_paid"}</span></td>
+      <td>
+        <label class="switch">
+          <input type="checkbox" ${checked} onchange="toggleAccess('${doc.id}', this)">
+          <span class="slider"></span>
+        </label>
+      </td>
     `;
 
     table.appendChild(tr);
   });
-
 }
 
-async function confirmPayment(uid){
-  await db.collection("students").doc(uid).update({
-    paymentStatus:"paid"
-  });
-}
+async function toggleAccess(uid, checkbox){
 
-function logout(){
-  auth.signOut();
-  window.location.href="login.html";
+  if(checkbox.checked){
+    await db.collection("students").doc(uid).update({
+      paymentStatus:"paid"
+    });
+  } else {
+    await db.collection("students").doc(uid).update({
+      paymentStatus:"not_paid"
+    });
+  }
+
+  loadStudents();
 }
 
 </script>
