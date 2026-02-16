@@ -145,6 +145,20 @@
     <p><span class="highlight">Payment Status:</span> 
       <span id="paymentStatus"></span>
     </p>
+<button id="verifyBtn"
+style="
+width:100%;
+padding:14px;
+margin-top:12px;
+border-radius:12px;
+border:none;
+background:#1f2937;
+color:#FFD700;
+font-weight:bold;
+cursor:pointer;
+border:2px solid #FFD700;">
+💳 Did You Pay? Click Here to Verify
+</button>
 
     <div id="progressSection" style="display:none;">
       <p><span class="highlight">Course Progress</span></p>
@@ -312,6 +326,47 @@ function logoutUser(){
 function openTimetable(){
   window.location.href = "timetable.html";
 }
+let currentUser;
+
+auth.onAuthStateChanged(async(user)=>{
+  if(!user){
+    window.location.href="login.html";
+    return;
+  }
+
+  currentUser = user;
+
+  const doc = await db.collection("students").doc(user.uid).get();
+  const data = doc.data();
+
+  // If already requested
+  if(data.paymentStatus === "pending"){
+    document.getElementById("verifyBtn").innerText =
+      "⏳ Verification Requested (Waiting for Approval)";
+    document.getElementById("verifyBtn").disabled = true;
+  }
+
+  // If already paid
+  if(data.paymentStatus === "paid"){
+    document.getElementById("verifyBtn").style.display="none";
+  }
+});
+
+document.getElementById("verifyBtn").addEventListener("click", async ()=>{
+
+  await db.collection("students").doc(currentUser.uid).update({
+    paymentStatus:"pending",
+    requestSubmitted:true,
+    requestTime: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  alert("Your request has been submitted. It may take up to 12 hours.");
+
+  document.getElementById("verifyBtn").innerText =
+    "⏳ Verification Requested (Waiting for Approval)";
+  document.getElementById("verifyBtn").disabled = true;
+
+});
 
 </script>
 
