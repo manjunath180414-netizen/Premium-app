@@ -145,20 +145,53 @@
     <p><span class="highlight">Payment Status:</span> 
       <span id="paymentStatus"></span>
     </p>
-<button id="verifyBtn"
-style="
+<div id="paymentSection"></div>
+<div id="requestModal" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
 width:100%;
-padding:14px;
-margin-top:12px;
-border-radius:12px;
-border:none;
-background:#1f2937;
-color:#FFD700;
-font-weight:bold;
-cursor:pointer;
-border:2px solid #FFD700;">
-💳 Did You Pay? Click Here to Verify
-</button>
+height:100%;
+background:rgba(0,0,0,0.7);
+justify-content:center;
+align-items:center;
+">
+
+  <div style="
+    background:#111827;
+    padding:25px;
+    border-radius:20px;
+    width:90%;
+    max-width:400px;
+    box-shadow:0 0 25px rgba(255,215,0,0.2);
+  ">
+
+    <h3 style="color:#FFD700;">Payment Verification</h3>
+
+    <p style="font-size:14px; line-height:1.6;">
+      Hello HiS Academy,<br><br>
+      I have paid the crash course fees. Kindly verify and give access.
+    </p>
+
+    <div id="studentInfo" style="margin-top:10px; font-size:14px;"></div>
+
+    <button onclick="submitRequest()" style="
+      width:100%;
+      margin-top:15px;
+      padding:12px;
+      border-radius:10px;
+      border:none;
+      background:#FFD700;
+      color:black;
+      font-weight:bold;
+      cursor:pointer;">
+      Submit Request
+    </button>
+
+  </div>
+
+</div>
 
     <div id="progressSection" style="display:none;">
       <p><span class="highlight">Course Progress</span></p>
@@ -325,6 +358,115 @@ function logoutUser(){
 }
 function openTimetable(){
   window.location.href = "timetable.html";
+}
+let currentUser;
+
+auth.onAuthStateChanged(async(user)=>{
+  if(!user){
+    window.location.href="login.html";
+    return;
+  }
+
+  currentUser = user;
+
+  const doc = await db.collection("students").doc(user.uid).get();
+  const data = doc.data();
+
+  renderPaymentUI(data);
+});
+
+
+function renderPaymentUI(data){
+
+  const container = document.getElementById("paymentSection");
+
+  // CASE 1 — NOT PAID
+  if(!data.paymentStatus || data.paymentStatus === "not_paid"){
+
+    container.innerHTML = `
+      <button onclick="openRequestScreen()" 
+      style="
+      width:100%;
+      padding:14px;
+      margin-top:15px;
+      border-radius:12px;
+      border:none;
+      background:#1f2937;
+      color:#FFD700;
+      font-weight:bold;
+      cursor:pointer;
+      border:2px solid #FFD700;">
+      💳 Did You Pay? Request for Verification
+      </button>
+    `;
+  }
+
+  // CASE 2 — PENDING
+  else if(data.paymentStatus === "pending"){
+
+    container.innerHTML = `
+      <div style="
+        margin-top:15px;
+        padding:15px;
+        border-radius:12px;
+        background:#1f2937;
+        border:2px solid #cc8800;
+        color:#FFD700;
+        font-weight:bold;
+      ">
+        ⏳ Requesting for Approval.<br>
+        Kindly wait up to 12 hours.
+      </div>
+    `;
+  }
+
+  // CASE 3 — PAID
+  else if(data.paymentStatus === "paid"){
+
+    container.innerHTML = `
+      <div style="
+        margin-top:15px;
+        padding:15px;
+        border-radius:12px;
+        background:#1f2937;
+        border:2px solid #00aa55;
+        color:#00ff99;
+        font-weight:bold;
+      ">
+        ✅ Payment Verified. Access Granted.
+      </div>
+    `;
+  }
+}
+function openRequestScreen(){
+
+  const user = currentUser;
+
+  db.collection("students").doc(user.uid).get().then(doc=>{
+    const data = doc.data();
+
+    document.getElementById("studentInfo").innerHTML = `
+      <strong>Name:</strong> ${data.name}<br>
+      <strong>Email:</strong> ${data.email}<br>
+      <strong>Phone:</strong> ${data.phone}
+    `;
+  });
+
+  document.getElementById("requestModal").style.display="flex";
+}
+
+
+async function submitRequest(){
+
+  await db.collection("students").doc(currentUser.uid).update({
+    paymentStatus:"pending",
+    requestSubmitted:true,
+    requestTime: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  document.getElementById("requestModal").style.display="none";
+
+  renderPaymentUI({paymentStatus:"pending"});
 }
 
 </script>
