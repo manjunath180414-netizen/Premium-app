@@ -7,155 +7,218 @@
 
 <style>
 body{
-    margin:0;
-    font-family:'Poppins',sans-serif;
-    background:#0b1220;
-    color:white;
-    text-align:center;
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:#0b1220;
+  color:white;
+  text-align:center;
+  overflow-x:hidden;
 }
 
-.section{
-    padding:30px 20px;
+.container{
+  padding:30px 20px;
 }
 
 .card{
-    background:#111c2f;
-    padding:25px;
-    border-radius:20px;
-    box-shadow:0 0 25px rgba(250,204,21,0.2);
+  background:#0f1c2e;
+  border-radius:25px;
+  padding:30px 20px;
+  box-shadow:0 0 40px rgba(250,204,21,0.1);
 }
 
-h2{
-    font-weight:800;
+h1{
+  font-size:26px;
+  font-weight:800;
 }
 
 .highlight{
-    color:#facc15;
+  color:#facc15;
+}
+
+.sub{
+  margin-top:10px;
+  font-size:16px;
+  opacity:0.9;
 }
 
 .secret{
-    font-size:13px;
-    opacity:0.8;
-    margin-top:8px;
+  margin-top:8px;
+  font-size:14px;
+  opacity:0.8;
 }
 
 #wheel-container{
-    margin:40px auto;
-    width:300px;
-    height:300px;
-    position:relative;
+  position:relative;
+  width:320px;
+  height:320px;
+  margin:40px auto;
 }
 
 #wheel{
-    width:100%;
-    height:100%;
-    border-radius:50%;
-    border:6px solid #facc15;
-    box-shadow:
-        0 0 20px #facc15,
-        0 0 40px #facc15,
-        0 0 60px #3b82f6;
-    transition:transform 4s cubic-bezier(.17,.67,.83,.67);
+  border-radius:50%;
+  background:#0b1220;
+  border:8px solid #facc15;
+  box-shadow:
+    0 0 30px #facc15,
+    0 0 60px rgba(250,204,21,0.7),
+    0 0 120px rgba(250,204,21,0.4);
+  transition:transform 4s cubic-bezier(.17,.67,.83,.67);
 }
 
 .pointer{
-    position:absolute;
-    top:-25px;
-    left:50%;
-    transform:translateX(-50%);
-    width:0;
-    height:0;
-    border-left:15px solid transparent;
-    border-right:15px solid transparent;
-    border-bottom:30px solid #facc15;
-    filter:drop-shadow(0 0 10px #facc15);
+  position:absolute;
+  top:-28px;
+  left:50%;
+  transform:translateX(-50%);
+  width:0;
+  height:0;
+  border-left:15px solid transparent;
+  border-right:15px solid transparent;
+  border-bottom:30px solid #facc15;
 }
 
 #spin-btn{
-    margin-top:20px;
-    padding:14px 35px;
-    border:none;
-    border-radius:30px;
-    font-weight:700;
-    font-size:16px;
-    background:#facc15;
-    color:black;
-    cursor:pointer;
-    box-shadow:0 0 15px #facc15;
+  background:#facc15;
+  color:#000;
+  border:none;
+  padding:15px 40px;
+  font-weight:700;
+  font-size:16px;
+  border-radius:35px;
+  box-shadow:0 0 25px #facc15;
+  cursor:pointer;
 }
 
-#spin-btn:hover{
-    transform:scale(1.05);
-}
-
+/* BIG POPUP */
 .popup{
-    display:none;
-    position:fixed;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    background:#111c2f;
-    padding:25px;
-    border-radius:20px;
-    width:85%;
-    max-width:350px;
-    box-shadow:0 0 40px rgba(250,204,21,0.4);
+  display:none;
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(0.8);
+  width:95%;
+  max-width:500px; /* Bigger than wheel */
+  background:#111c2f;
+  padding:40px 25px;
+  border-radius:30px;
+  box-shadow:
+    0 0 40px #facc15,
+    0 0 80px rgba(250,204,21,0.6);
+  z-index:1000;
+  animation:popupAnim 0.4s ease forwards;
+}
+
+@keyframes popupAnim{
+  to{
+    transform:translate(-50%,-50%) scale(1);
+  }
+}
+
+.popup h2{
+  font-size:28px;
+  color:#facc15;
+  margin-top:0;
+}
+
+.popup p{
+  margin:10px 0;
+  font-size:16px;
 }
 
 .pay-btn{
-    margin-top:15px;
-    padding:10px 25px;
-    background:#facc15;
-    border:none;
-    border-radius:25px;
-    font-weight:700;
-    cursor:pointer;
+  margin-top:20px;
+  padding:14px 35px;
+  background:#facc15;
+  border:none;
+  border-radius:30px;
+  font-weight:800;
+  font-size:16px;
+  cursor:pointer;
+  box-shadow:0 0 20px #facc15;
 }
 </style>
 </head>
 
 <body>
 
-<div class="section">
-<div class="card">
-<h2>🎯 Score <span class="highlight">90+</span> in 30 Days</h2>
-<p>346 Hours Smart Revision System</p>
-<p class="secret">🤫 We will do Question Paper Analysis before the Exam</p>
+<div class="container">
+  <div class="card">
+    <h1>🎯 Score <span class="highlight">90+</span> in 30 Days</h1>
+    <div class="sub">346 Hours Smart Revision System</div>
+    <div class="secret">🤫 We will do Question Paper Analysis before the Exam</div>
 
-<div id="wheel-container">
-<div class="pointer"></div>
-<canvas id="wheel" width="300" height="300"></canvas>
-</div>
+    <div id="wheel-container">
+      <div class="pointer"></div>
+      <canvas id="wheel" width="320" height="320"></canvas>
+    </div>
 
-<button id="spin-btn">Unlock Scholarship</button>
-</div>
+    <button id="spin-btn">Unlock Scholarship</button>
+  </div>
 </div>
 
 <div class="popup" id="popup">
-<h3>🎉 Scholarship Unlocked</h3>
-<p id="result-text"></p>
-<button class="pay-btn">Pay Now</button>
+  <h2>🎉 CONGRATULATIONS!</h2>
+  <p id="result-text"></p>
+  <p>✅ You will get <b>All Important Questions</b></p>
+  <p>📚 <b>300+ Hours Classes</b></p>
+  <p>🤫 <b>Question Paper Analysis Before Exam</b></p>
+  <button class="pay-btn">Secure My Seat Now</button>
 </div>
 
 <script>
 const canvas=document.getElementById("wheel");
 const ctx=canvas.getContext("2d");
 
-const segments=[
-{label:"₹189",color:"#facc15"},
-{label:"₹299",color:"#3b82f6"},
-{label:"FREE",color:"#22c55e"}
-];
+const segments=["₹189","₹299","FREE","₹899"];
 
 function drawWheel(){
-const angle=2*Math.PI/segments.length;
-for(let i=0;i<segments.length;i++){
-ctx.beginPath();
-ctx.moveTo(150,150);
-ctx.arc(150,150,150,i*angle,(i+1)*angle);
-ctx.fillStyle=segments[i].color;
-ctx.fill();
-ctx.save();
-ctx.translate(150,150);
-ctx.rotate(i*angle+angle/2);
-ctx.f
+  const angle=2*Math.PI/segments.length;
+  for(let i=0;i<segments.length;i++){
+    ctx.beginPath();
+    ctx.moveTo(160,160);
+    ctx.arc(160,160,160,i*angle,(i+1)*angle);
+    ctx.fillStyle="#0b1220";
+    ctx.fill();
+    ctx.strokeStyle="#facc15";
+    ctx.lineWidth=2;
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(160,160);
+    ctx.rotate(i*angle+angle/2);
+    ctx.fillStyle="#facc15";
+    ctx.font="bold 20px Poppins";
+    ctx.fillText(segments[i],70,10);
+    ctx.restore();
+  }
+}
+drawWheel();
+
+let spinning=false;
+
+document.getElementById("spin-btn").onclick=function(){
+  if(spinning) return;
+  spinning=true;
+
+  let rand=Math.random()*100;
+  let result;
+
+  if(rand<89){ result=0; }
+  else if(rand<99){ result=1; }
+  else{ result=2; }
+
+  let angle=360*6+(360/segments.length)*result;
+  canvas.style.transform=`rotate(${angle}deg)`;
+
+  // Popup before full stop
+  setTimeout(()=>{
+    document.getElementById("popup").style.display="block";
+    document.getElementById("result-text").innerHTML=
+      result===2 ?
+      "You unlocked this course <b>FREE</b> 🎉" :
+      "Your special scholarship price is <b>"+segments[result]+"</b>";
+  },3000);
+};
+</script>
+
+</body>
+</html>
