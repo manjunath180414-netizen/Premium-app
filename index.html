@@ -108,7 +108,10 @@
 </div>
 
 <script>
-
+// Get referral from URL
+const urlParams = new URLSearchParams(window.location.search);
+const referredBy = urlParams.get("ref");
+    
   // 🔥 Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyCehyZQukDfslKTY_u9yXcUrzGtMNHvuPA",
@@ -159,49 +162,94 @@ const referralCode = "HIS" + Math.floor(100000 + Math.random() * 900000);
 const urlParams = new URLSearchParams(window.location.search);
 const referredBy = urlParams.get("ref");
 
-db.collection("students").doc(user.uid).set({
-  name: nameInput.value,
-  phone: phoneInput.value,
-  email: user.email,
-  medium: mediumSelect.value,
-  enrolledCourse: "",
-  paymentStatus: "not_paid",
-  requestSubmitted: false,
+auth.signInWithPopup(provider)
+.then(async (result) => {
 
-  referralCode: referralCode,
-  referredBy: referredBy || null,
-  referralCount: 0,
-  unlockRequested: false,
-  approved: false,
+  const user = result.user;
 
-  totalStudyHours: 0,
-  joinedOn: firebase.firestore.FieldValue.serverTimestamp()
-})
-.then(async () => {
+  const docRef = db.collection("students").doc(user.uid);
+  const docSnap = await docRef.get();
 
-  // 🔥 Increase referral count of referrer
-  if (referredBy) {
-    const snapshot = await db.collection("students")
-      .where("referralCode", "==", referredBy)
-      .get();
+  // 🔥 Only create new record if not exists
+  if (!docSnap.exists) {
 
-    snapshot.forEach(async (doc) => {
-      const data = doc.data();
-      await db.collection("students").doc(doc.id).update({
-        referralCount: (data.referralCount || 0) + 1
-      });
+    // Generate referral code
+    const referralCode = "HIS" + Math.floor(100000 + Math.random() * 900000);
+
+    await docRef.set({
+      name: nameInput.value,
+      phone: phoneInput.value,
+      email: user.email,
+      medium: mediumSelect.value,
+      enrolledCourse: "",
+      paymentStatus: "not_paid",
+      requestSubmitted: false,
+
+      referralCode: referralCode,
+      referredBy: referredBy || null,
+      referralCount: 0,
+      unlockRequested: false,
+      approved: false,
+
+      totalStudyHours: 0,
+      joinedOn: firebase.firestore.FieldValue.serverTimestamp()
     });
+
+    // 🔥 Increase referral count of referrer
+    if (referredBy) {
+
+      const snapshot = await db.collection("students")
+        .where("referralCode", "==", referredBy)
+        .get();
+
+      snapshot.forEach(async (doc) => {
+
+        // ❌ Prevent self referral
+        if (doc.id !== user.uid) {
+
+          const data = doc.data();
+
+          await db.collection("students").doc(doc.id).update({
+            referralCount: (data.referralCount || 0) + 1
+          });
+
+        }
+      });
+    }
   }
 
+  // After login go to course page
   window.location.href = "courses.html";
-});
 
+})
+.catch((error) => {
+  alert(error.message);
+});
     })
     .catch((error) => {
       alert(error.message);
     });
 
   });
+    if (referredBy) {
+
+  const snapshot = await db.collection("students")
+    .where("referralCode", "==", referredBy)
+    .get();
+
+  snapshot.forEach(async (doc) => {
+    const data = doc.data();
+
+    // ❌ prevent self referral
+    if(doc.id !== user.uid){
+
+      await db.collection("students").doc(doc.id).update({
+        referralCount: (data.referralCount || 0) + 1
+      });
+
+    }
+  });
+    }
 
   // 🔥 Already Paid Button Logic
   alreadyBtn.addEventListener("click", () => {
