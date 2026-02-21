@@ -74,6 +74,24 @@
       opacity: 0.7;
       margin-bottom: 10px;
     }
+    .yellow-btn {
+  background: #FFD700;
+  color: black;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  width: 100%;
+  font-weight: bold;
+  font-size: 15px;
+  margin-top: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.yellow-btn:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 15px rgba(255,215,0,0.6);
+}
   </style>
 </head>
 
@@ -230,14 +248,16 @@ function addReferralUI(){
 
   const referralDiv = document.createElement("div");
   referralDiv.innerHTML = `
-    <hr style="margin:20px 0; opacity:0.2;">
-    <h3 style="color:#FFD700;">OR Refer 10 Friends & Unlock FREE</h3>
-    <button onclick="shareLoginLink()">Share Login Link</button>
-    <div style="text-align:center; margin-top:10px; font-size:20px; color:#FFD700;">
-      🔥 Streak: <span id="streakCount">${studentData.referralCount || 0}</span>/10
-    </div>
-    <div id="unlockSection" style="margin-top:10px; text-align:center;"></div>
-  `;
+  <hr style="margin:20px 0; opacity:0.2;">
+  <h3 style="color:#FFD700;">Refer 10 Friends & Unlock FREE</h3>
+  <button class="yellow-btn" onclick="shareLoginLink()">
+    Share on WhatsApp
+  </button>
+  <div style="text-align:center; margin-top:10px; font-size:22px; color:#FFD700;">
+    🔥 ${studentData.referralCount || 0}/10
+  </div>
+  <div id="unlockSection" style="margin-top:10px;"></div>
+`;
 
   container.appendChild(referralDiv);
 
@@ -270,17 +290,21 @@ function updateUnlockUI(){
 
 function shareLoginLink(){
 
-  const loginLink = window.location.origin + "/index.html";
+  const referralLink =
+    window.location.origin +
+    "/index.html?ref=" +
+    studentData.referralCode;
 
   const message =
-    "🔥 Join SSLC 2026 Crash Course FREE!\n\n" +
-    "Login using this link:\n" +
-    loginLink +
-    "\n\nUse this phone number as referral: " +
-    studentData.phone;
+  "🔥 SSLC 2026 Crash Course FREE 🔥\n\n" +
+  "🎯 300 Hours Intensive Coaching\n" +
+  "🚀 Target 90+ Marks\n\n" +
+  "Register here:\n" +
+  referralLink;
 
   const whatsappURL =
-    "https://wa.me/?text=" + encodeURIComponent(message);
+  "https://api.whatsapp.com/send?text=" +
+  encodeURIComponent(message);
 
   window.open(whatsappURL, "_blank");
 }
