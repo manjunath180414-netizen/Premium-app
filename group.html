@@ -23,43 +23,64 @@
       border-radius:20px;
       margin-top:20px;
     }
+    input{
+      width:100%;
+      padding:12px;
+      margin-top:10px;
+      border-radius:10px;
+      border:none;
+      background:#1f2937;
+      color:white;
+    }
+    button{
+      width:100%;
+      padding:12px;
+      margin-top:10px;
+      border:none;
+      border-radius:10px;
+      background:#10b981;
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
+    }
     .member{
       background:#1f2937;
       padding:10px;
       border-radius:10px;
       margin-bottom:8px;
     }
-    .btn{
-      background:#10b981;
-      border:none;
-      padding:14px;
-      border-radius:12px;
-      width:100%;
-      margin-top:15px;
-      color:white;
-      font-weight:bold;
-      cursor:pointer;
-    }
   </style>
 </head>
 
 <body>
 
-<h1>🔥 My Study Squad</h1>
+<h1>🔥 Study Group</h1>
 
-<div class="card">
-  <h3 id="groupName">Loading...</h3>
-  <p id="memberCount"></p>
+<div id="createSection" class="card" style="display:none;">
+  <h3>Create Your Group</h3>
+  <p>Enter 4 digits. We will add HIS automatically.</p>
+  <input type="number" id="groupDigits" placeholder="Enter 4 digits">
+  <button onclick="createGroup()">Create Group</button>
 </div>
 
-<div class="card">
-  <h3>Members</h3>
-  <div id="membersList"></div>
-</div>
+<div id="groupSection" style="display:none;">
 
-<button class="btn" onclick="shareGroupLink()">Invite Friends</button>
+  <div class="card">
+    <h3 id="groupName"></h3>
+    <p id="memberCount"></p>
+  </div>
+
+  <div class="card">
+    <h3>Members</h3>
+    <div id="membersList"></div>
+  </div>
+
+  <button onclick="shareGroupLink()">Invite Friends</button>
+
+</div>
 
 <script>
+
 const firebaseConfig = {
   apiKey: "AIzaSyCehyZQukDfslKTY_u9yXcUrzGtMNHvuPA",
   authDomain: "his-academy.firebaseapp.com",
@@ -69,86 +90,133 @@ const firebaseConfig = {
   appId: "1:573278549264:web:ca2ff160b5a100cc7d2195",
   measurementId: "G-8WPMS7H33F"
 };
-  
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+const auth=firebase.auth();
+const db=firebase.firestore();
 
-let currentGroupId = null; // 🔥 store properly
+let currentGroupId=null;
 
-auth.onAuthStateChanged(async (user) => {
+auth.onAuthStateChanged(async(user)=>{
 
-  if (!user) {
-    window.location.href = "index.html";
+  if(!user){
+    window.location.href="index.html";
     return;
   }
 
-  const studentRef = db.collection("students").doc(user.uid);
-  const studentDoc = await studentRef.get();
-  let studentData = studentDoc.data();
+  const studentRef=db.collection("students").doc(user.uid);
+  const studentDoc=await studentRef.get();
+  const studentData=studentDoc.data();
 
-  // 🔥 If no group → create first
-  if (!studentData.groupId) {
+  // 🔥 If coming from link
+  const groupFromURL=new URLSearchParams(window.location.search).get("group");
 
-    const newGroupRef = await db.collection("studyGroups").add({
-      groupName: studentData.name + "'s Squad",
-      createdBy: user.uid,
-      members: [user.uid],
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    await studentRef.update({
-      groupId: newGroupRef.id
-    });
-
-    currentGroupId = newGroupRef.id;
-
-  } else {
-    currentGroupId = studentData.groupId;
+  if(groupFromURL){
+    await joinGroup(user.uid,groupFromURL);
+    return;
   }
 
-  // 🔥 Now groupId is guaranteed valid
-  const groupDoc = await db.collection("studyGroups")
-                           .doc(currentGroupId)
-                           .get();
-
-  const groupData = groupDoc.data();
-
-  document.getElementById("groupName").innerText = groupData.groupName;
-  document.getElementById("memberCount").innerText =
-    "Members: " + groupData.members.length + "/10";
-
-  const list = document.getElementById("membersList");
-  list.innerHTML = "";
-
-  for (const uid of groupData.members) {
-    const memberDoc = await db.collection("students").doc(uid).get();
-    const div = document.createElement("div");
-    div.className = "member";
-    div.innerText = memberDoc.data().name;
-    list.appendChild(div);
+  if(!studentData.groupId){
+    document.getElementById("createSection").style.display="block";
+  }else{
+    loadGroup(studentData.groupId);
   }
 
 });
 
-async function shareGroupLink() {
+async function createGroup(){
 
-  if (!currentGroupId) {
-    alert("Group still creating. Please wait 2 seconds.");
+  const digits=document.getElementById("groupDigits").value;
+
+  if(digits.length<4){
+    alert("Enter at least 4 digits");
     return;
   }
 
-  const baseURL =
-    "https://manjunath180414-netizen.github.io/HiSAcademyWebApp/";
+  const groupId="HIS"+digits;
 
-  const link = baseURL + "?group=" + currentGroupId;
+  const groupRef=db.collection("studyGroups").doc(groupId);
+  const groupDoc=await groupRef.get();
+
+  if(groupDoc.exists){
+    alert("Group code already taken. Try different digits.");
+    return;
+  }
+
+  const user=auth.currentUser;
+
+  await groupRef.set({
+    groupName:groupId,
+    createdBy:user.uid,
+    members:[user.uid],
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  await db.collection("students").doc(user.uid).update({
+    groupId:groupId
+  });
+
+  loadGroup(groupId);
+}
+
+async function joinGroup(uid,groupId){
+
+  const groupRef=db.collection("studyGroups").doc(groupId);
+  const groupDoc=await groupRef.get();
+
+  if(!groupDoc.exists){
+    alert("Group does not exist");
+    return;
+  }
+
+  await groupRef.update({
+    members:firebase.firestore.FieldValue.arrayUnion(uid)
+  });
+
+  await db.collection("students").doc(uid).update({
+    groupId:groupId
+  });
+
+  loadGroup(groupId);
+}
+
+async function loadGroup(groupId){
+
+  currentGroupId=groupId;
+
+  document.getElementById("createSection").style.display="none";
+  document.getElementById("groupSection").style.display="block";
+
+  const groupDoc=await db.collection("studyGroups").doc(groupId).get();
+  const groupData=groupDoc.data();
+
+  document.getElementById("groupName").innerText="Group: "+groupId;
+  document.getElementById("memberCount").innerText=
+    "Members: "+groupData.members.length+"/10";
+
+  const list=document.getElementById("membersList");
+  list.innerHTML="";
+
+  for(const uid of groupData.members){
+    const memberDoc=await db.collection("students").doc(uid).get();
+    const div=document.createElement("div");
+    div.className="member";
+    div.innerText=memberDoc.data().name;
+    list.appendChild(div);
+  }
+}
+
+function shareGroupLink(){
+
+  const baseURL="https://manjunath180414-netizen.github.io/HiSAcademyWebApp/";
+  const link=baseURL+"?group="+currentGroupId;
 
   window.open(
-    "https://api.whatsapp.com/send?text=" +
-    encodeURIComponent("Join my Study Squad 🚀\n\n" + link),
+    "https://api.whatsapp.com/send?text="+
+    encodeURIComponent("Join my Study Squad 🚀\n\n"+link),
     "_blank"
   );
 }
+
 </script>
 
 </body>
