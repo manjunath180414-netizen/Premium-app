@@ -1,7 +1,7 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-  <title>HiS Academy Login</title>
+  <title>HIS Academy | Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Firebase -->
@@ -47,10 +47,6 @@
       outline: none;
     }
 
-    input::placeholder {
-      color: #aaa;
-    }
-
     .google-btn {
       width: 100%;
       padding: 12px;
@@ -61,7 +57,6 @@
       font-weight: bold;
       cursor: pointer;
       display: none;
-      margin-bottom: 10px;
     }
 
     .already-btn {
@@ -73,20 +68,20 @@
       color: #FFD700;
       font-weight: bold;
       cursor: pointer;
+      margin-top: 10px;
     }
 
     .already-btn:hover {
       background: #FFD700;
       color: black;
     }
-
   </style>
 </head>
 <body>
 
 <div class="container">
 
-  <h2>Welcome to HiS Academy</h2>
+  <h2>Welcome to HIS Academy</h2>
 
   <input type="text" id="name" placeholder="Enter Your Name">
   <input type="tel" id="phone" placeholder="Enter Phone Number">
@@ -98,18 +93,18 @@
   </select>
 
   <button id="googleBtn" class="google-btn">
-    Login with Google
+    Continue with Google
   </button>
 
-  <button id="alreadyPaidBtn" class="already-btn">
-    Already Paid? Start Learning
+  <button id="alreadyBtn" class="already-btn">
+    Already Registered? Continue
   </button>
 
 </div>
 
 <script>
 
-// 🔥 Get referral from URL
+// 🔥 Get referral code from URL
 const urlParams = new URLSearchParams(window.location.search);
 const referredBy = urlParams.get("ref");
 
@@ -134,9 +129,9 @@ const nameInput = document.getElementById("name");
 const phoneInput = document.getElementById("phone");
 const mediumSelect = document.getElementById("medium");
 const googleBtn = document.getElementById("googleBtn");
-const alreadyBtn = document.getElementById("alreadyPaidBtn");
+const alreadyBtn = document.getElementById("alreadyBtn");
 
-// 🔥 Show Google button only if all fields filled
+// Show login button only when all fields filled
 function checkInputs() {
   if (nameInput.value && phoneInput.value && mediumSelect.value) {
     googleBtn.style.display = "block";
@@ -160,52 +155,23 @@ googleBtn.addEventListener("click", async () => {
     const docRef = db.collection("students").doc(user.uid);
     const docSnap = await docRef.get();
 
-    // Only create record if new
+    // If new user
     if (!docSnap.exists) {
-
-      const referralCode = "HIS" + Math.floor(100000 + Math.random() * 900000);
 
       await docRef.set({
         name: nameInput.value,
         phone: phoneInput.value,
         email: user.email,
         medium: mediumSelect.value,
-        enrolledCourse: "",
         paymentStatus: "not_paid",
-        requestSubmitted: false,
-        referralCode: referralCode,
         referredBy: referredBy || null,
-        referralCount: 0,
-        unlockRequested: false,
-        approved: false,
-        totalStudyHours: 0,
+        groupId: null,
         joinedOn: firebase.firestore.FieldValue.serverTimestamp()
       });
 
-      // Increase referral count
-      if (referredBy) {
-
-        const snapshot = await db.collection("students")
-          .where("referralCode", "==", referredBy)
-          .get();
-
-        snapshot.forEach(async (doc) => {
-
-          if (doc.id !== user.uid) {
-
-            const data = doc.data();
-
-            await db.collection("students").doc(doc.id).update({
-              referralCount: (data.referralCount || 0) + 1
-            });
-
-          }
-
-        });
-      }
     }
 
-    window.location.href = "courses.html";
+    redirectUser(user.uid);
 
   } catch (error) {
     alert(error.message);
@@ -213,39 +179,46 @@ googleBtn.addEventListener("click", async () => {
 
 });
 
-// 🔥 Already Paid Button
-alreadyBtn.addEventListener("click", () => {
+// Already Registered Button
+alreadyBtn.addEventListener("click", async () => {
 
-  auth.onAuthStateChanged((user) => {
+  const user = auth.currentUser;
 
-    if (user) {
+  if (!user) {
+    alert("Please login with Google first.");
+    return;
+  }
 
-      db.collection("students").doc(user.uid).get()
-      .then((doc) => {
-
-        if (!doc.exists) {
-          alert("No student record found.");
-          return;
-        }
-
-        const data = doc.data();
-
-        if (data.paymentStatus === "paid") {
-          window.location.href = "dashboard.html";
-        } else {
-          window.location.href = "courses.html";
-        }
-
-      });
-
-    } else {
-      alert("Please login with Google first.");
-    }
-
-  });
+  redirectUser(user.uid);
 
 });
 
+// 🔥 Redirect Logic
+async function redirectUser(uid) {
+
+  const doc = await db.collection("students").doc(uid).get();
+
+  if (!doc.exists) {
+    alert("Student record not found.");
+    return;
+  }
+
+  const data = doc.data();
+
+  if (data.paymentStatus === "paid") {
+    window.location.href = "dashboard.html";
+    return;
+  }
+
+  if (data.referredBy) {
+    window.location.href = "group.html";
+    return;
+  }
+
+  window.location.href = "courses.html";
+}
+
 </script>
+
 </body>
 </html>
