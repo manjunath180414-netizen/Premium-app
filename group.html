@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Study Group | HIS Academy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f0f1a, #1a1a2e);
+      color: white;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #FFD700;
+    }
+
+    .card {
+      background: #111827;
+      padding: 20px;
+      border-radius: 20px;
+      margin-top: 20px;
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.15);
+    }
+
+    .member {
+      background: #1f2937;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+
+    .highlight {
+      color: #FFD700;
+      font-weight: bold;
+    }
+
+    .btn {
+      background: #FFD700;
+      color: black;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      width: 100%;
+      font-weight: bold;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🔥 My Study Squad</h1>
+
+<div class="card">
+  <h3 id="groupName">Loading...</h3>
+  <p id="memberCount"></p>
+  <p id="progress"></p>
+</div>
+
+<div class="card">
+  <h3>👥 Members</h3>
+  <div id="membersList"></div>
+</div>
+
+<button class="btn" onclick="shareGroupLink()">➕ Invite Friends</button>
+
+<button class="btn" onclick="window.location.href='dashboard.html'">
+  ⬅ Back to Dashboard
+</button>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+
+// 🔥 Your SAME Firebase Config (copy from your main file)
+const firebaseConfig = {
+  apiKey: "AIzaSyCehyZQukDfslKTY_u9yXcUrzGtMNHvuPA",
+  authDomain: "his-academy.firebaseapp.com",
+  projectId: "his-academy",
+  storageBucket: "his-academy.firebasestorage.app",
+  messagingSenderId: "573278549264",
+  appId: "1:573278549264:web:ca2ff160b5a100cc7d2195",
+  measurementId: "G-8WPMS7H33F"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+auth.onAuthStateChanged(async (user) => {
+
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  const studentRef = db.collection("students").doc(user.uid);
+  const studentDoc = await studentRef.get();
+
+  if (!studentDoc.exists) {
+    alert("Student not found.");
+    return;
+  }
+
+  let studentData = studentDoc.data();
+
+  // 🔥 AUTO CREATE GROUP IF NOT EXISTS
+  if (!studentData.groupId) {
+
+    const newGroup = await db.collection("studyGroups").add({
+      groupName: studentData.name + "'s Squad",
+      createdBy: user.uid,
+      members: [user.uid],
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    await studentRef.update({
+      groupId: newGroup.id,
+      mode: "group"
+    });
+
+    studentData.groupId = newGroup.id;
+  }
+
+  // 🔥 FETCH GROUP
+  const groupDoc = await db.collection("studyGroups")
+                           .doc(studentData.groupId)
+                           .get();
+
+  if (!groupDoc.exists) {
+    alert("Group not found.");
+    return;
+  }
+
+  const groupData = groupDoc.data();
+
+  document.getElementById("groupName").innerText =
+    groupData.groupName;
+
+  document.getElementById("memberCount").innerHTML =
+    "Members: <span class='highlight'>" +
+    groupData.members.length +
+    "/10</span>";
+
+  document.getElementById("progress").innerHTML =
+    "Invite <span class='highlight'>" +
+    (10 - groupData.members.length) +
+    "</span> more friends to unlock FREE access";
+
+  const membersList = document.getElementById("membersList");
+
+  for (const uid of groupData.members) {
+
+    const memberDoc = await db.collection("students")
+                              .doc(uid)
+                              .get();
+
+    if (memberDoc.exists) {
+
+      const div = document.createElement("div");
+      div.className = "member";
+      div.innerText = memberDoc.data().name;
+
+      membersList.appendChild(div);
+    }
+  }
+
+});
+
+// 🔥 Invite Link (uses referralCode)
+async function shareGroupLink() {
+
+  const user = auth.currentUser;
+
+  const studentDoc = await db.collection("students")
+                             .doc(user.uid)
+                             .get();
+
+  const referralCode = studentDoc.data().referralCode;
+
+  const link =
+    window.location.origin +
+    "/HiSAcademyWebApp/index.html?ref=" +
+    referralCode;
+
+  const message =
+    "🔥 Join my SSLC Study Squad!\n\n" +
+    "Study together & unlock FREE access 🚀\n\n" +
+    link;
+
+  window.open(
+    "https://api.whatsapp.com/send?text=" +
+    encodeURIComponent(message),
+    "_blank"
+  );
+}
+
+</script>
+
+</body>
+</html>
