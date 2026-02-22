@@ -125,43 +125,46 @@ auth.onAuthStateChanged(async(user)=>{
 
 async function createGroup(){
 
-  const digits=document.getElementById("groupDigits").value;
+  const digits = document.getElementById("groupDigits").value.trim();
 
-  if(digits.length<4){
-    alert("Enter at least 4 digits");
+  if(digits.length !== 4){
+    alert("Enter exactly 4 digits");
     return;
   }
 
-  const groupId="HIS"+digits;
+  const groupId = "HIS" + digits;
+  const user = auth.currentUser;
 
-  const groupRef=db.collection("studyGroups").doc(groupId);
-  const groupDoc=await groupRef.get();
+  const groupRef = db.collection("studyGroups").doc(groupId);
+  const groupDoc = await groupRef.get();
 
   if(groupDoc.exists){
-    alert("Group code already taken. Try different digits.");
+    alert("Group code already taken.");
     return;
   }
 
-  const user=auth.currentUser;
-
   await groupRef.set({
-    groupName:groupId,
-    createdBy:user.uid,
-    members:[user.uid],
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    groupName: groupId,
+    createdBy: user.uid,
+    members: [user.uid],
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
 
   await db.collection("students").doc(user.uid).update({
-    groupId:groupId
+    groupId: groupId
   });
+
+  // 🔥 Immediately show group section
+  showGroupUI(groupId);
+}
 
   loadGroup(groupId);
 }
 
-async function joinGroup(uid,groupId){
+async function joinGroup(uid, groupId){
 
-  const groupRef=db.collection("studyGroups").doc(groupId);
-  const groupDoc=await groupRef.get();
+  const groupRef = db.collection("studyGroups").doc(groupId);
+  const groupDoc = await groupRef.get();
 
   if(!groupDoc.exists){
     alert("Group does not exist");
@@ -169,38 +172,38 @@ async function joinGroup(uid,groupId){
   }
 
   await groupRef.update({
-    members:firebase.firestore.FieldValue.arrayUnion(uid)
+    members: firebase.firestore.FieldValue.arrayUnion(uid)
   });
 
   await db.collection("students").doc(uid).update({
-    groupId:groupId
+    groupId: groupId
   });
 
+  showGroupUI(groupId);
   loadGroup(groupId);
 }
+async function showGroupUI(groupId){
 
-async function loadGroup(groupId){
+  currentGroupId = groupId;
 
-  currentGroupId=groupId;
+  document.getElementById("createSection").style.display = "none";
+  document.getElementById("groupSection").style.display = "block";
 
-  document.getElementById("createSection").style.display="none";
-  document.getElementById("groupSection").style.display="block";
+  const groupDoc = await db.collection("studyGroups").doc(groupId).get();
+  const groupData = groupDoc.data();
 
-  const groupDoc=await db.collection("studyGroups").doc(groupId).get();
-  const groupData=groupDoc.data();
+  document.getElementById("groupName").innerText = "Group: " + groupId;
+  document.getElementById("memberCount").innerText =
+    "Members: " + groupData.members.length + "/10";
 
-  document.getElementById("groupName").innerText="Group: "+groupId;
-  document.getElementById("memberCount").innerText=
-    "Members: "+groupData.members.length+"/10";
-
-  const list=document.getElementById("membersList");
-  list.innerHTML="";
+  const list = document.getElementById("membersList");
+  list.innerHTML = "";
 
   for(const uid of groupData.members){
-    const memberDoc=await db.collection("students").doc(uid).get();
-    const div=document.createElement("div");
-    div.className="member";
-    div.innerText=memberDoc.data().name;
+    const memberDoc = await db.collection("students").doc(uid).get();
+    const div = document.createElement("div");
+    div.className = "member";
+    div.innerText = memberDoc.data().name;
     list.appendChild(div);
   }
 }
