@@ -193,10 +193,9 @@ async function shareGroupLink() {
 
   const groupId = studentDoc.data().groupId;
 
-  const link =
-    window.location.origin +
-    "/index.html?group=" +
-    groupId;
+  const baseURL = "https://manjunath180414-netizen.github.io/HiSAcademyWebApp/";
+
+  const link = baseURL + "index.html?group=" + groupId;
 
   const message =
     "🔥 Join my HIS Academy Study Squad!\n\n" +
@@ -209,7 +208,6 @@ async function shareGroupLink() {
     "_blank"
   );
 }
-
 </script>
 
 </body>
