@@ -4,11 +4,15 @@
   <title>Study Group | HIS Academy</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
   <style>
     body {
       margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #0f0f1a, #1a1a2e);
+      font-family: Poppins, sans-serif;
+      background: linear-gradient(135deg,#0f0f1a,#1a1a2e);
       color: white;
       padding: 20px;
     }
@@ -23,7 +27,7 @@
       padding: 20px;
       border-radius: 20px;
       margin-top: 20px;
-      box-shadow: 0 0 25px rgba(255, 215, 0, 0.15);
+      box-shadow: 0 0 25px rgba(255,215,0,0.15);
     }
 
     .member {
@@ -49,6 +53,11 @@
       margin-top: 15px;
       cursor: pointer;
     }
+
+    .btn-green {
+      background: #10b981;
+      color: white;
+    }
   </style>
 </head>
 
@@ -67,20 +76,17 @@
   <div id="membersList"></div>
 </div>
 
-<button class="btn" onclick="shareGroupLink()">➕ Invite Friends</button>
-
-<button class="btn" onclick="window.location.href='dashboard.html'">
-  ⬅ Back to Dashboard
+<button class="btn btn-green" onclick="shareGroupLink()">
+  ➕ Invite Friends
 </button>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<button class="btn" onclick="window.location.href='courses.html'">
+  ⬅ Back
+</button>
 
 <script>
 
-// 🔥 Your SAME Firebase Config (copy from your main file)
+// 🔥 Firebase Config (same as index.html)
 const firebaseConfig = {
   apiKey: "AIzaSyCehyZQukDfslKTY_u9yXcUrzGtMNHvuPA",
   authDomain: "his-academy.firebaseapp.com",
@@ -113,10 +119,10 @@ auth.onAuthStateChanged(async (user) => {
 
   let studentData = studentDoc.data();
 
-  // 🔥 AUTO CREATE GROUP IF NOT EXISTS
+  // ✅ If no group → create new group
   if (!studentData.groupId) {
 
-    const newGroup = await db.collection("studyGroups").add({
+    const newGroupRef = await db.collection("studyGroups").add({
       groupName: studentData.name + "'s Squad",
       createdBy: user.uid,
       members: [user.uid],
@@ -124,14 +130,13 @@ auth.onAuthStateChanged(async (user) => {
     });
 
     await studentRef.update({
-      groupId: newGroup.id,
-      mode: "group"
+      groupId: newGroupRef.id
     });
 
-    studentData.groupId = newGroup.id;
+    studentData.groupId = newGroupRef.id;
   }
 
-  // 🔥 FETCH GROUP
+  // ✅ Fetch Group
   const groupDoc = await db.collection("studyGroups")
                            .doc(studentData.groupId)
                            .get();
@@ -152,17 +157,18 @@ auth.onAuthStateChanged(async (user) => {
     "/10</span>";
 
   document.getElementById("progress").innerHTML =
-    "Invite <span class='highlight'>" +
-    (10 - groupData.members.length) +
-    "</span> more friends to unlock FREE access";
+    groupData.members.length >= 10
+      ? "<span class='highlight'>🎉 Group Full! Unlock Available</span>"
+      : "Invite <span class='highlight'>" +
+        (10 - groupData.members.length) +
+        "</span> more friends to unlock FREE access";
 
   const membersList = document.getElementById("membersList");
+  membersList.innerHTML = "";
 
   for (const uid of groupData.members) {
 
-    const memberDoc = await db.collection("students")
-                              .doc(uid)
-                              .get();
+    const memberDoc = await db.collection("students").doc(uid).get();
 
     if (memberDoc.exists) {
 
@@ -176,16 +182,8 @@ auth.onAuthStateChanged(async (user) => {
 
 });
 
-// 🔥 Invite Link (uses referralCode)
+// 🔥 Share Group Link
 async function shareGroupLink() {
-
-  const user = auth.currentUser;
-
-  const studentDoc = await db.collection("students")
-                             .doc(user.uid)
-                             .get();
-
-  async function shareGroupLink() {
 
   const user = auth.currentUser;
 
@@ -210,7 +208,8 @@ async function shareGroupLink() {
     encodeURIComponent(message),
     "_blank"
   );
-    }
+}
+
 </script>
 
 </body>
