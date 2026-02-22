@@ -108,48 +108,49 @@
 </div>
 
 <script>
-// Get referral from URL
+
+// 🔥 Get referral from URL
 const urlParams = new URLSearchParams(window.location.search);
 const referredBy = urlParams.get("ref");
-    
-  // 🔥 Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyCehyZQukDfslKTY_u9yXcUrzGtMNHvuPA",
-    authDomain: "his-academy.firebaseapp.com",
-    projectId: "his-academy",
-    storageBucket: "his-academy.firebasestorage.app",
-    messagingSenderId: "573278549264",
-    appId: "1:573278549264:web:ca2ff160b5a100cc7d2195",
-    measurementId: "G-8WPMS7H33F"
-  };
 
-  firebase.initializeApp(firebaseConfig);
+// 🔥 Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyCehyZQukDfslKTY_u9yXcUrzGtMNHvuPA",
+  authDomain: "his-academy.firebaseapp.com",
+  projectId: "his-academy",
+  storageBucket: "his-academy.firebasestorage.app",
+  messagingSenderId: "573278549264",
+  appId: "1:573278549264:web:ca2ff160b5a100cc7d2195",
+  measurementId: "G-8WPMS7H33F"
+};
 
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-  const provider = new firebase.auth.GoogleAuthProvider();
+firebase.initializeApp(firebaseConfig);
 
-  const nameInput = document.getElementById("name");
-  const phoneInput = document.getElementById("phone");
-  const mediumSelect = document.getElementById("medium");
-  const googleBtn = document.getElementById("googleBtn");
-  const alreadyBtn = document.getElementById("alreadyPaidBtn");
+const auth = firebase.auth();
+const db = firebase.firestore();
+const provider = new firebase.auth.GoogleAuthProvider();
 
-  // Show Google button only if form filled
-  function checkInputs() {
-    if (nameInput.value && phoneInput.value && mediumSelect.value) {
-      googleBtn.style.display = "block";
-    } else {
-      googleBtn.style.display = "none";
-    }
+const nameInput = document.getElementById("name");
+const phoneInput = document.getElementById("phone");
+const mediumSelect = document.getElementById("medium");
+const googleBtn = document.getElementById("googleBtn");
+const alreadyBtn = document.getElementById("alreadyPaidBtn");
+
+// 🔥 Show Google button only if all fields filled
+function checkInputs() {
+  if (nameInput.value && phoneInput.value && mediumSelect.value) {
+    googleBtn.style.display = "block";
+  } else {
+    googleBtn.style.display = "none";
   }
+}
 
-  nameInput.addEventListener("input", checkInputs);
-  phoneInput.addEventListener("input", checkInputs);
-  mediumSelect.addEventListener("change", checkInputs);
+nameInput.addEventListener("input", checkInputs);
+phoneInput.addEventListener("input", checkInputs);
+mediumSelect.addEventListener("change", checkInputs);
 
-  // 🔐 Google Login
-  googleBtn.addEventListener("click", async () => {
+// 🔐 Google Login
+googleBtn.addEventListener("click", async () => {
 
   try {
 
@@ -159,7 +160,7 @@ const referredBy = urlParams.get("ref");
     const docRef = db.collection("students").doc(user.uid);
     const docSnap = await docRef.get();
 
-    // Only create record if new student
+    // Only create record if new
     if (!docSnap.exists) {
 
       const referralCode = "HIS" + Math.floor(100000 + Math.random() * 900000);
@@ -172,13 +173,11 @@ const referredBy = urlParams.get("ref");
         enrolledCourse: "",
         paymentStatus: "not_paid",
         requestSubmitted: false,
-
         referralCode: referralCode,
         referredBy: referredBy || null,
         referralCount: 0,
         unlockRequested: false,
         approved: false,
-
         totalStudyHours: 0,
         joinedOn: firebase.firestore.FieldValue.serverTimestamp()
       });
@@ -214,63 +213,39 @@ const referredBy = urlParams.get("ref");
 
 });
 
-.catch((error) => {
-  alert(error.message);
-});
-    })
-    .catch((error) => {
-      alert(error.message);
-    });
+// 🔥 Already Paid Button
+alreadyBtn.addEventListener("click", () => {
 
-  });
- 
+  auth.onAuthStateChanged((user) => {
 
-    // ❌ prevent self referral
-    if(doc.id !== user.uid){
+    if (user) {
 
-      await db.collection("students").doc(doc.id).update({
-        referralCount: (data.referralCount || 0) + 1
+      db.collection("students").doc(user.uid).get()
+      .then((doc) => {
+
+        if (!doc.exists) {
+          alert("No student record found.");
+          return;
+        }
+
+        const data = doc.data();
+
+        if (data.paymentStatus === "paid") {
+          window.location.href = "dashboard.html";
+        } else {
+          window.location.href = "courses.html";
+        }
+
       });
 
+    } else {
+      alert("Please login with Google first.");
     }
-  });
-    }
-
-  // 🔥 Already Paid Button Logic
-  alreadyBtn.addEventListener("click", () => {
-
-    auth.onAuthStateChanged((user) => {
-
-      if (user) {
-
-        db.collection("students").doc(user.uid).get()
-        .then((doc) => {
-
-          if (!doc.exists) {
-            alert("No student record found.");
-            return;
-          }
-
-          const data = doc.data();
-
-          if (data.paymentStatus === "paid") {
-            window.location.href = "dashboard.html";
-          } else {
-            alert("Kindly make the payment and enroll in the course.");
-            window.location.href = "courses.html";
-          }
-
-        });
-
-      } else {
-        alert("Please login with Google first.");
-      }
-
-    });
 
   });
+
+});
 
 </script>
-
 </body>
 </html>
