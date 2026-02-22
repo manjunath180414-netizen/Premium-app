@@ -185,15 +185,23 @@ async function shareGroupLink() {
                              .doc(user.uid)
                              .get();
 
-  const referralCode = studentDoc.data().referralCode;
+  async function shareGroupLink() {
+
+  const user = auth.currentUser;
+
+  const studentDoc = await db.collection("students")
+                             .doc(user.uid)
+                             .get();
+
+  const groupId = studentDoc.data().groupId;
 
   const link =
     window.location.origin +
-    "/HiSAcademyWebApp/index.html?ref=" +
-    referralCode;
+    "/index.html?group=" +
+    groupId;
 
   const message =
-    "🔥 Join my SSLC Study Squad!\n\n" +
+    "🔥 Join my HIS Academy Study Squad!\n\n" +
     "Study together & unlock FREE access 🚀\n\n" +
     link;
 
@@ -202,8 +210,7 @@ async function shareGroupLink() {
     encodeURIComponent(message),
     "_blank"
   );
-}
-
+    }
 </script>
 
 </body>
