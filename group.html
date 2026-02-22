@@ -16,47 +16,31 @@
       color: white;
       padding: 20px;
     }
-
-    h1 {
-      text-align: center;
-      color: #FFD700;
-    }
-
+    h1 { text-align:center; color:#FFD700; }
     .card {
-      background: #111827;
-      padding: 20px;
-      border-radius: 20px;
-      margin-top: 20px;
-      box-shadow: 0 0 25px rgba(255,215,0,0.15);
+      background:#111827;
+      padding:20px;
+      border-radius:20px;
+      margin-top:20px;
+      box-shadow:0 0 25px rgba(255,215,0,0.15);
     }
-
     .member {
-      background: #1f2937;
-      padding: 10px;
-      border-radius: 10px;
-      margin-bottom: 8px;
+      background:#1f2937;
+      padding:10px;
+      border-radius:10px;
+      margin-bottom:8px;
     }
-
-    .highlight {
-      color: #FFD700;
-      font-weight: bold;
-    }
-
+    .highlight { color:#FFD700; font-weight:bold; }
     .btn {
-      background: #FFD700;
-      color: black;
-      border: none;
-      padding: 14px;
-      border-radius: 12px;
-      width: 100%;
-      font-weight: bold;
-      margin-top: 15px;
-      cursor: pointer;
-    }
-
-    .btn-green {
-      background: #10b981;
-      color: white;
+      background:#10b981;
+      color:white;
+      border:none;
+      padding:14px;
+      border-radius:12px;
+      width:100%;
+      font-weight:bold;
+      margin-top:15px;
+      cursor:pointer;
     }
   </style>
 </head>
@@ -68,7 +52,6 @@
 <div class="card">
   <h3 id="groupName">Loading...</h3>
   <p id="memberCount"></p>
-  <p id="progress"></p>
 </div>
 
 <div class="card">
@@ -76,17 +59,10 @@
   <div id="membersList"></div>
 </div>
 
-<button class="btn btn-green" onclick="shareGroupLink()">
-  ➕ Invite Friends
-</button>
-
-<button class="btn" onclick="window.location.href='courses.html'">
-  ⬅ Back
-</button>
+<button class="btn" onclick="shareGroupLink()">➕ Invite Friends</button>
 
 <script>
 
-// 🔥 Firebase Config (same as index.html)
 const firebaseConfig = {
   apiKey: "AIzaSyCehyZQukDfslKTY_u9yXcUrzGtMNHvuPA",
   authDomain: "his-academy.firebaseapp.com",
@@ -98,9 +74,10 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
 const db = firebase.firestore();
+
+let currentGroupId = null; // 🔥 important
 
 auth.onAuthStateChanged(async (user) => {
 
@@ -113,13 +90,13 @@ auth.onAuthStateChanged(async (user) => {
   const studentDoc = await studentRef.get();
 
   if (!studentDoc.exists) {
-    alert("Student not found.");
+    alert("Student not found");
     return;
   }
 
   let studentData = studentDoc.data();
 
-  // ✅ If no group → create new group
+  // 🔥 If no group → create
   if (!studentData.groupId) {
 
     const newGroupRef = await db.collection("studyGroups").add({
@@ -136,66 +113,49 @@ auth.onAuthStateChanged(async (user) => {
     studentData.groupId = newGroupRef.id;
   }
 
-  // ✅ Fetch Group
+  currentGroupId = studentData.groupId; // 🔥 save globally
+
   const groupDoc = await db.collection("studyGroups")
-                           .doc(studentData.groupId)
+                           .doc(currentGroupId)
                            .get();
 
   if (!groupDoc.exists) {
-    alert("Group not found.");
+    alert("Group not found");
     return;
   }
 
   const groupData = groupDoc.data();
 
-  document.getElementById("groupName").innerText =
-    groupData.groupName;
-
+  document.getElementById("groupName").innerText = groupData.groupName;
   document.getElementById("memberCount").innerHTML =
     "Members: <span class='highlight'>" +
-    groupData.members.length +
-    "/10</span>";
-
-  document.getElementById("progress").innerHTML =
-    groupData.members.length >= 10
-      ? "<span class='highlight'>🎉 Group Full! Unlock Available</span>"
-      : "Invite <span class='highlight'>" +
-        (10 - groupData.members.length) +
-        "</span> more friends to unlock FREE access";
+    groupData.members.length + "/10</span>";
 
   const membersList = document.getElementById("membersList");
   membersList.innerHTML = "";
 
   for (const uid of groupData.members) {
-
     const memberDoc = await db.collection("students").doc(uid).get();
-
     if (memberDoc.exists) {
-
       const div = document.createElement("div");
       div.className = "member";
       div.innerText = memberDoc.data().name;
-
       membersList.appendChild(div);
     }
   }
 
 });
 
-// 🔥 Share Group Link
-async function shareGroupLink() {
+// 🔥 SHARE LINK FIXED
+function shareGroupLink() {
 
-  const user = auth.currentUser;
-
-  const studentDoc = await db.collection("students")
-                             .doc(user.uid)
-                             .get();
-
-  const groupId = studentDoc.data().groupId;
+  if (!currentGroupId) {
+    alert("Group not ready yet. Please wait.");
+    return;
+  }
 
   const baseURL = "https://manjunath180414-netizen.github.io/HiSAcademyWebApp/";
-
-  const link = baseURL + "index.html?group=" + groupId;
+  const link = baseURL + "index.html?group=" + currentGroupId;
 
   const message =
     "🔥 Join my HIS Academy Study Squad!\n\n" +
@@ -208,6 +168,7 @@ async function shareGroupLink() {
     "_blank"
   );
 }
+
 </script>
 
 </body>
