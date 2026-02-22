@@ -125,7 +125,6 @@
 
 
 
-
     <h1>SSLC 2026 CRASH COURSE</h1>
 
     <p class="highlight">🚀 300 HOURS | 30 DAYS INTENSE COACHING</p>
@@ -154,22 +153,29 @@
 <p style="font-style:italic; margin-top:5px;">
 "The harder you work for something, the greater you'll feel when you achieve it."
 </p>
-<hr style="margin:25px 0; opacity:0.2;">
+
 
 <div style="background:#1f2937; padding:18px; border-radius:15px; text-align:center;">
 
-  <h3 style="color:#FFD700; margin-bottom:10px;">
-    Want to Learn for FREE? 🎓
-  </h3>
+  <hr style="margin:25px 0; opacity:0.2;">
 
-  <p style="font-size:14px; opacity:0.9; margin-bottom:15px;">
-    If you want to learn for <b style="color:#FFD700;">FREE</b>,
-    add your <b>10 friends</b> and learn together!
+<div style="background:#1f2937; padding:20px; border-radius:15px; text-align:center;">
+
+  <h3 style="color:#FFD700;">Choose Your Study Mode</h3>
+
+  <p style="font-size:14px; opacity:0.9;">
+    Study alone by paying now OR study with your friends for FREE.
   </p>
 
-  <p style="font-size:12px; opacity:0.7; margin-top:8px;">
-    🔒 We only access selected contacts for referral purposes.
-  </p>
+  <!-- Study Alone -->
+  <button class="yellow-btn" onclick="studyAlone()">
+    💳 Study Alone – Pay Now
+  </button>
+
+  <!-- Study With Friends -->
+  <button class="yellow-btn" style="background:#10b981; margin-top:10px;" onclick="studyWithFriends()">
+    👥 Study With Friends – It's FREE
+  </button>
 
 </div>
     <div style="margin-top:20px; text-align:center;">
@@ -340,6 +346,30 @@ async function requestUnlock(){
   updateUnlockUI();
 
   alert("Unlock request sent for verification.");
+}
+  async function studyAlone() {
+
+  const user = auth.currentUser;
+
+  await db.collection("students").doc(user.uid).update({
+    mode: "solo"
+  });
+
+  // Scroll to Razorpay or trigger payment
+  document.querySelector(".razorpay-embed-btn").scrollIntoView({
+    behavior: "smooth"
+  });
+}
+
+async function studyWithFriends() {
+
+  const user = auth.currentUser;
+
+  await db.collection("students").doc(user.uid).update({
+    mode: "group"
+  });
+
+  window.location.href = "group.html";
 }
   
 </script>
