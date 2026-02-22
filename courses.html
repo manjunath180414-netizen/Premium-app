@@ -356,38 +356,51 @@ async function requestUnlock(){
 
       const contacts = await navigator.contacts.select(properties, options);
 
-      contacts.forEach(async (contact) => {
+      const user = auth.currentUser;
 
-  const name = contact.name ? contact.name[0] : "No Name";
-  let phone = contact.tel ? contact.tel[0] : null;
+      for (const contact of contacts) {
 
-  if (!phone) return;
+        const name = contact.name ? contact.name[0] : "No Name";
+        let phone = contact.tel ? contact.tel[0] : null;
 
-  // Remove all non-numbers
-  phone = phone.replace(/\D/g, '');
+        if (!phone) continue;
 
-  // Remove +91 if present
-  if (phone.startsWith('91') && phone.length === 12) {
-    phone = phone.slice(2);
+        phone = phone.replace(/\D/g, '');
+
+        if (phone.startsWith('91') && phone.length === 12) {
+          phone = phone.slice(2);
+        }
+
+        if (phone.length !== 10) continue;
+
+        await db.collection("students")
+          .doc(user.uid)
+          .collection("referrals")
+          .add({
+            name: name,
+            phone: phone,
+            addedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            source: "contact_picker",
+            status: "pending"
+          });
+
+        await db.collection("students").doc(user.uid).update({
+          referralCount: firebase.firestore.FieldValue.increment(1)
+        });
+
+      }
+
+      alert("Friends added successfully!");
+
+    } catch (error) {
+      alert("Contact selection cancelled.");
+    }
+
+  } else {
+    alert("Contact Picker not supported on this device.");
   }
 
-  if (phone.length !== 10) return;
-
-  const user = auth.currentUser;
-
-  await db.collection("students")
-    .doc(user.uid)
-    .collection("referrals")
-    .add({
-      name: name,
-      phone: phone,
-      addedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      source: "contact_picker",
-      status: "pending"
-    });
-
-});
-
+  }
 </script>
 </body>
 </html>
