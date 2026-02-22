@@ -69,81 +69,86 @@ const firebaseConfig = {
   appId: "1:573278549264:web:ca2ff160b5a100cc7d2195",
   measurementId: "G-8WPMS7H33F"
 };
-
+  
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-auth.onAuthStateChanged(async(user)=>{
+let currentGroupId = null; // 🔥 store properly
 
-  if(!user){
-    window.location.href="index.html";
+auth.onAuthStateChanged(async (user) => {
+
+  if (!user) {
+    window.location.href = "index.html";
     return;
   }
 
-  const studentRef=db.collection("students").doc(user.uid);
-  const studentDoc=await studentRef.get();
-  let studentData=studentDoc.data();
+  const studentRef = db.collection("students").doc(user.uid);
+  const studentDoc = await studentRef.get();
+  let studentData = studentDoc.data();
 
-  // 🔥 If no group → create
-  if(!studentData.groupId){
+  // 🔥 If no group → create first
+  if (!studentData.groupId) {
 
-    const newGroupRef=await db.collection("studyGroups").add({
-      groupName:studentData.name+"'s Squad",
-      createdBy:user.uid,
-      members:[user.uid],
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    const newGroupRef = await db.collection("studyGroups").add({
+      groupName: studentData.name + "'s Squad",
+      createdBy: user.uid,
+      members: [user.uid],
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
     await studentRef.update({
-      groupId:newGroupRef.id
+      groupId: newGroupRef.id
     });
 
-    studentData.groupId=newGroupRef.id;
+    currentGroupId = newGroupRef.id;
+
+  } else {
+    currentGroupId = studentData.groupId;
   }
 
-  const groupDoc=await db.collection("studyGroups")
-                         .doc(studentData.groupId)
-                         .get();
+  // 🔥 Now groupId is guaranteed valid
+  const groupDoc = await db.collection("studyGroups")
+                           .doc(currentGroupId)
+                           .get();
 
-  const groupData=groupDoc.data();
+  const groupData = groupDoc.data();
 
-  document.getElementById("groupName").innerText=groupData.groupName;
-  document.getElementById("memberCount").innerText=
-    "Members: "+groupData.members.length+"/10";
+  document.getElementById("groupName").innerText = groupData.groupName;
+  document.getElementById("memberCount").innerText =
+    "Members: " + groupData.members.length + "/10";
 
-  const list=document.getElementById("membersList");
-  list.innerHTML="";
+  const list = document.getElementById("membersList");
+  list.innerHTML = "";
 
-  for(const uid of groupData.members){
-    const memberDoc=await db.collection("students").doc(uid).get();
-    const div=document.createElement("div");
-    div.className="member";
-    div.innerText=memberDoc.data().name;
+  for (const uid of groupData.members) {
+    const memberDoc = await db.collection("students").doc(uid).get();
+    const div = document.createElement("div");
+    div.className = "member";
+    div.innerText = memberDoc.data().name;
     list.appendChild(div);
   }
 
 });
 
-async function shareGroupLink(){
+async function shareGroupLink() {
 
-  const user=auth.currentUser;
-  const studentDoc=await db.collection("students")
-                           .doc(user.uid)
-                           .get();
+  if (!currentGroupId) {
+    alert("Group still creating. Please wait 2 seconds.");
+    return;
+  }
 
-  const groupId=studentDoc.data().groupId;
+  const baseURL =
+    "https://manjunath180414-netizen.github.io/HiSAcademyWebApp/";
 
-  const baseURL="https://manjunath180414-netizen.github.io/HiSAcademyWebApp/";
-  const link=baseURL+"?group="+groupId;
+  const link = baseURL + "?group=" + currentGroupId;
 
   window.open(
-    "https://api.whatsapp.com/send?text="+
-    encodeURIComponent("Join my Study Squad 🚀\n\n"+link),
+    "https://api.whatsapp.com/send?text=" +
+    encodeURIComponent("Join my Study Squad 🚀\n\n" + link),
     "_blank"
   );
 }
-
 </script>
 
 </body>
