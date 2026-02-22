@@ -167,10 +167,6 @@
     add your <b>10 friends</b> and learn together!
   </p>
 
-  <button class="yellow-btn" onclick="openContactPicker()">
-    ➕ Add 10 Friends
-  </button>
-
   <p style="font-size:12px; opacity:0.7; margin-top:8px;">
     🔒 We only access selected contacts for referral purposes.
   </p>
@@ -345,62 +341,7 @@ async function requestUnlock(){
 
   alert("Unlock request sent for verification.");
 }
-  async function openContactPicker() {
-
-  if ('contacts' in navigator && 'select' in navigator.contacts) {
-
-    const properties = ['name', 'tel'];
-    const options = { multiple: true };
-
-    try {
-
-      const contacts = await navigator.contacts.select(properties, options);
-
-      const user = auth.currentUser;
-
-      for (const contact of contacts) {
-
-        const name = contact.name ? contact.name[0] : "No Name";
-        let phone = contact.tel ? contact.tel[0] : null;
-
-        if (!phone) continue;
-
-        phone = phone.replace(/\D/g, '');
-
-        if (phone.startsWith('91') && phone.length === 12) {
-          phone = phone.slice(2);
-        }
-
-        if (phone.length !== 10) continue;
-
-        await db.collection("students")
-          .doc(user.uid)
-          .collection("referrals")
-          .add({
-            name: name,
-            phone: phone,
-            addedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            source: "contact_picker",
-            status: "pending"
-          });
-
-        await db.collection("students").doc(user.uid).update({
-          referralCount: firebase.firestore.FieldValue.increment(1)
-        });
-
-      }
-
-      alert("Friends added successfully!");
-
-    } catch (error) {
-      alert("Contact selection cancelled.");
-    }
-
-  } else {
-    alert("Contact Picker not supported on this device.");
-  }
-
-  }
+  
 </script>
 </body>
 </html>
