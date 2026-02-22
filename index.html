@@ -58,23 +58,6 @@
       cursor: pointer;
       display: none;
     }
-
-    .already-btn {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid #FFD700;
-      background: #1f2937;
-      color: #FFD700;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .already-btn:hover {
-      background: #FFD700;
-      color: black;
-    }
   </style>
 </head>
 <body>
@@ -96,17 +79,13 @@
     Continue with Google
   </button>
 
-  <button id="alreadyBtn" class="already-btn">
-    Already Registered? Continue
-  </button>
-
 </div>
 
 <script>
 
-// 🔥 Get referral code from URL
+// 🔥 Get group from URL
 const urlParams = new URLSearchParams(window.location.search);
-const referredBy = urlParams.get("ref");
+const groupIdFromLink = urlParams.get("group");
 
 // 🔥 Firebase Config
 const firebaseConfig = {
@@ -118,7 +97,6 @@ const firebaseConfig = {
   appId: "1:573278549264:web:ca2ff160b5a100cc7d2195",
   measurementId: "G-8WPMS7H33F"
 };
-
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
@@ -129,9 +107,8 @@ const nameInput = document.getElementById("name");
 const phoneInput = document.getElementById("phone");
 const mediumSelect = document.getElementById("medium");
 const googleBtn = document.getElementById("googleBtn");
-const alreadyBtn = document.getElementById("alreadyBtn");
 
-// Show login button only when all fields filled
+// Show button only when fields filled
 function checkInputs() {
   if (nameInput.value && phoneInput.value && mediumSelect.value) {
     googleBtn.style.display = "block";
@@ -155,7 +132,7 @@ googleBtn.addEventListener("click", async () => {
     const docRef = db.collection("students").doc(user.uid);
     const docSnap = await docRef.get();
 
-    // If new user
+    // 🔥 NEW USER
     if (!docSnap.exists) {
 
       await docRef.set({
@@ -164,10 +141,20 @@ googleBtn.addEventListener("click", async () => {
         email: user.email,
         medium: mediumSelect.value,
         paymentStatus: "not_paid",
-        referredBy: referredBy || null,
-        groupId: null,
+        groupId: groupIdFromLink || null,
         joinedOn: firebase.firestore.FieldValue.serverTimestamp()
       });
+
+      // 🔥 If joined via group link → add to that group
+      if (groupIdFromLink) {
+
+        await db.collection("studyGroups")
+          .doc(groupIdFromLink)
+          .update({
+            members: firebase.firestore.FieldValue.arrayUnion(user.uid)
+          });
+
+      }
 
     }
 
@@ -179,29 +166,12 @@ googleBtn.addEventListener("click", async () => {
 
 });
 
-// Already Registered Button
-alreadyBtn.addEventListener("click", async () => {
-
-  const user = auth.currentUser;
-
-  if (!user) {
-    alert("Please login with Google first.");
-    return;
-  }
-
-  redirectUser(user.uid);
-
-});
-
 // 🔥 Redirect Logic
 async function redirectUser(uid) {
 
   const doc = await db.collection("students").doc(uid).get();
 
-  if (!doc.exists) {
-    alert("Student record not found.");
-    return;
-  }
+  if (!doc.exists) return;
 
   const data = doc.data();
 
@@ -210,7 +180,7 @@ async function redirectUser(uid) {
     return;
   }
 
-  if (data.referredBy) {
+  if (data.groupId) {
     window.location.href = "group.html";
     return;
   }
