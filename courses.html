@@ -356,31 +356,37 @@ async function requestUnlock(){
 
       const contacts = await navigator.contacts.select(properties, options);
 
-      contacts.forEach(contact => {
+      contacts.forEach(async (contact) => {
 
-        let phone = contact.tel[0].replace(/\D/g, '');
+  const name = contact.name ? contact.name[0] : "No Name";
+  let phone = contact.tel ? contact.tel[0] : null;
 
-        if (phone.startsWith('91') && phone.length === 12) {
-          phone = phone.slice(2);
-        }
+  if (!phone) return;
 
-        if (phone.length === 10) {
-          console.log("Saving:", contact.name[0], phone);
-          // 👉 Save to Firebase here
-        }
+  // Remove all non-numbers
+  phone = phone.replace(/\D/g, '');
 
-      });
-
-      alert("Friends added successfully!");
-
-    } catch (error) {
-      alert("Contact selection cancelled.");
-    }
-
-  } else {
-    alert("Contact selection not supported on this device. Please use Android Chrome.");
+  // Remove +91 if present
+  if (phone.startsWith('91') && phone.length === 12) {
+    phone = phone.slice(2);
   }
-  }
+
+  if (phone.length !== 10) return;
+
+  const user = auth.currentUser;
+
+  await db.collection("students")
+    .doc(user.uid)
+    .collection("referrals")
+    .add({
+      name: name,
+      phone: phone,
+      addedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      source: "contact_picker",
+      status: "pending"
+    });
+
+});
 
 </script>
 </body>
