@@ -154,7 +154,28 @@
 <p style="font-style:italic; margin-top:5px;">
 "The harder you work for something, the greater you'll feel when you achieve it."
 </p>
+<hr style="margin:25px 0; opacity:0.2;">
 
+<div style="background:#1f2937; padding:18px; border-radius:15px; text-align:center;">
+
+  <h3 style="color:#FFD700; margin-bottom:10px;">
+    Want to Learn for FREE? 🎓
+  </h3>
+
+  <p style="font-size:14px; opacity:0.9; margin-bottom:15px;">
+    If you want to learn for <b style="color:#FFD700;">FREE</b>,
+    add your <b>10 friends</b> and learn together!
+  </p>
+
+  <button class="yellow-btn" onclick="openContactPicker()">
+    ➕ Add 10 Friends
+  </button>
+
+  <p style="font-size:12px; opacity:0.7; margin-top:8px;">
+    🔒 We only access selected contacts for referral purposes.
+  </p>
+
+</div>
     <div style="margin-top:20px; text-align:center;">
       
       <!-- Razorpay Button -->
@@ -324,6 +345,42 @@ async function requestUnlock(){
 
   alert("Unlock request sent for verification.");
 }
+  async function openContactPicker() {
+
+  if ('contacts' in navigator && 'select' in navigator.contacts) {
+
+    const properties = ['name', 'tel'];
+    const options = { multiple: true };
+
+    try {
+
+      const contacts = await navigator.contacts.select(properties, options);
+
+      contacts.forEach(contact => {
+
+        let phone = contact.tel[0].replace(/\D/g, '');
+
+        if (phone.startsWith('91') && phone.length === 12) {
+          phone = phone.slice(2);
+        }
+
+        if (phone.length === 10) {
+          console.log("Saving:", contact.name[0], phone);
+          // 👉 Save to Firebase here
+        }
+
+      });
+
+      alert("Friends added successfully!");
+
+    } catch (error) {
+      alert("Contact selection cancelled.");
+    }
+
+  } else {
+    alert("Contact selection not supported on this device. Please use Android Chrome.");
+  }
+  }
 
 </script>
 </body>
